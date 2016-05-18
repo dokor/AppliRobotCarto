@@ -156,15 +156,15 @@ public class MainActivity extends AppCompatActivity {
             mTcpClient = new TcpClient(new TcpClient.OnMessageReceived() {
                 @Override
                 //here the messageReceived method is implemented
-                public void messageReceived(ByteBuffer message) throws IOException {
+                public void messageReceived(ByteBuffer bf) throws IOException {
                     //this method calls the onProgressUpdate
 
-                    publishProgress(message);
+                    publishProgress(bf);
                 //    Log.i("Debug","Input message: " + message);
                     if(reglages == null){
                         Log.i("Debug","Création de réglages");
                         reglages = new Reglages();
-                        reglages.createFromBytes(message);
+                        reglages.createFromBytes(bf);
 
                     }
 /*

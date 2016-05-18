@@ -24,7 +24,7 @@ public class TcpClient {
     private int bufferSize = 20000000;
     private ByteBuffer bf;
     private BufferedInputStream inFromServer;
-    private OutputStream outFromClient;
+    private BufferedOutputStream outFromClient;
 
 
 
@@ -48,14 +48,15 @@ public class TcpClient {
         mRun = false;
         isConnected = false;
     }
-/*
-    public void sendMessage(String message) {
-        if (mBufferOut != null && !mBufferOut.checkError()) {
-            mBufferOut.println(message);
-            mBufferOut.flush();
+
+    public void sendMessage(byte message) throws IOException {
+        if (outFromClient != null) {
+
+            outFromClient.write(message);
+            outFromClient.flush();
         }
     }
-*/
+
     public void run() {
 
         mRun = true;
@@ -75,7 +76,8 @@ public class TcpClient {
                 //receives the message which the server sends back
 
                 inFromServer = new BufferedInputStream(socket.getInputStream());
-            //    outFromClient = new BufferedOutputStream();
+                outFromClient = new BufferedOutputStream(socket.getOutputStream());
+
                 bf = ByteBuffer.allocate(bufferSize);
 
 
@@ -124,6 +126,6 @@ public class TcpClient {
 
 
     public interface OnMessageReceived {
-        public void messageReceived(ByteBuffer message) throws IOException;
+        public void messageReceived(ByteBuffer bf) throws IOException;
     }
 }
