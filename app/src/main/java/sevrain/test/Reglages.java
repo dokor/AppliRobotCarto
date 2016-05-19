@@ -5,8 +5,11 @@ Equivalent à la structure T_Buf_Reglage
  */
 
 import android.util.Log;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.zip.CRC32;
 
 
 public class Reglages {
@@ -47,7 +50,7 @@ public class Reglages {
     public float ConsigneAngulaire = 0;
     public float VitesseMesure = 0;
 
-    public short Phare_Luminosite = 0;
+    public short Phare_Luminosite = 1000;
     public short Temperature_Exterieure = 0;
     public short V_Batterie = 0;
     public byte Etat_Sauvegarde = 0;
@@ -78,7 +81,80 @@ public class Reglages {
 
     public int Crc;
 
+    //METHODES
+    public byte[] intToByteArray(int value) {
+        return new byte[] {
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)value};
+    }
+    public byte[] shortToByteArray(short value) {
+        return new byte[]{
+                (byte) (value >> 8),
+                (byte) value};
+    }
+    public byte [] floatToByteArray(float value) {
+        return ByteBuffer.allocate(4).putFloat(value).array();
+    }
+
+    public byte[] concatenateByteArray() throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+
+        outputStream.write(intToByteArray(Header1));
+        outputStream.write(intToByteArray(Header2));
+        outputStream.write(shortToByteArray(TypeMessage));
+        outputStream.write(shortToByteArray(Total_octet));
+        outputStream.write(shortToByteArray(Position_Premier_Octet));
+        outputStream.write(shortToByteArray(Nombre_Doctets));
+        outputStream.write(shortToByteArray(CoefP_D));
+        outputStream.write(shortToByteArray(CoefI_D));
+        outputStream.write(shortToByteArray(CoefD_D));
+        outputStream.write(shortToByteArray(Commande_Moteur_D));
+        outputStream.write(shortToByteArray(ErreurPrecedente_D));
+        outputStream.write(shortToByteArray(ErreurSomme_D));
+        outputStream.write(shortToByteArray(Consigne_D));
+        outputStream.write(shortToByteArray(Encodeur_Delta_D));
+        outputStream.write(shortToByteArray(Encodeur_Precedent_D));
+        outputStream.write(shortToByteArray(Commande_D));
+        outputStream.write(shortToByteArray(CoefP_G));
+        outputStream.write(shortToByteArray(CoefI_G));
+        outputStream.write(shortToByteArray(CoefD_G));
+        outputStream.write(shortToByteArray(Commande_Moteur_G));
+        outputStream.write(shortToByteArray(ErreurPrecedente_G));
+        outputStream.write(shortToByteArray(ErreurSomme_G));
+        outputStream.write(shortToByteArray(Consigne_G));
+        outputStream.write(shortToByteArray(Encodeur_Delta_G));
+        outputStream.write(shortToByteArray(Encodeur_Precedent_G));
+        outputStream.write(shortToByteArray(Commande_G));
+        outputStream.write(floatToByteArray(Vitesse));
+        outputStream.write(floatToByteArray(ConsigneAngulaire));
+        outputStream.write(floatToByteArray(VitesseMesure));
+        outputStream.write(shortToByteArray(Phare_Luminosite));
+        outputStream.write(shortToByteArray(Temperature_Exterieure));
+        outputStream.write(shortToByteArray(V_Batterie));
+        outputStream.write(Etat_Sauvegarde);
+        outputStream.write(Mode_Commande);
+        outputStream.write(shortToByteArray(Commande_Consigne_D));
+        outputStream.write(shortToByteArray(Vitesse_D));
+        outputStream.write(shortToByteArray(Commande_Consigne_G));
+        outputStream.write(shortToByteArray(Vitesse_G));
+        outputStream.write(Status_Lidar);
+        outputStream.write(Status_Moteur_Lidar);
+        outputStream.write(shortToByteArray(Erreur_Code_Lidar));
+        outputStream.write(floatToByteArray(Compas));
+        outputStream.write(floatToByteArray(ConsigneAngulaireNulle));
+        outputStream.write(floatToByteArray(CoefA_Av));
+        outputStream.write(floatToByteArray(CoefB_Av));
+        outputStream.write(floatToByteArray(CoefA_Ar));
+        outputStream.write(floatToByteArray(CoefB_Ar));
+
+        byte result[] = outputStream.toByteArray( );
+        return result;
+    }
+
 }
+
 
 /*
 public class Reglages {

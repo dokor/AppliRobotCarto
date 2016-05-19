@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewDebug;
 import android.widget.Button;
 import android.widget.TextView;
 import android.view.MotionEvent;
@@ -103,9 +102,14 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener AllumerPhares = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            try {
+                int len = reglages.concatenateByteArray().length;
+                mTcpClient.sendMessage(reglages.concatenateByteArray());
+                Log.i("Debug",String.valueOf(len));
+            } catch (IOException e) {
+                Log.e("Debug","ERREUR sendMessage");
+            }
 
-            Log.i("Test","" +Short.toString(reglages.getPhare_Luminosite()));
-            Log.i("Test","" +reglages.getPhare_Luminosite());
         }
     };
 
@@ -148,11 +152,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     //Class pour connexion tcp
-    public class ConnectTask extends AsyncTask <Void, ByteBuffer, TcpClient>{
+    private class ConnectTask extends AsyncTask <Void, ByteBuffer, TcpClient>{
 
         @Override
         protected TcpClient doInBackground(Void... params) {
             //we create a TCPClient object and
+            reglages = new Reglages();
             mTcpClient = new TcpClient(new TcpClient.OnMessageReceived() {
                 @Override
                 //here the messageReceived method is implemented
@@ -161,12 +166,13 @@ public class MainActivity extends AppCompatActivity {
 
                     publishProgress(bf);
                 //    Log.i("Debug","Input message: " + message);
+                    /*
                     if(reglages == null){
                         Log.i("Debug","Création de réglages");
                         reglages = new Reglages();
                         reglages.createFromBytes(bf);
 
-                    }
+                    }*/
 /*
                     else if (reglages != null){
                            Log.i("Debug","MAJ de réglages");

@@ -3,11 +3,8 @@ package sevrain.test;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -24,7 +21,7 @@ public class TcpClient {
     private int bufferSize = 20000000;
     private ByteBuffer bf;
     private BufferedInputStream inFromServer;
-    private BufferedOutputStream outFromClient;
+    private DataOutputStream outFromClient;
 
 
 
@@ -49,7 +46,7 @@ public class TcpClient {
         isConnected = false;
     }
 
-    public void sendMessage(byte message) throws IOException {
+    public void sendMessage(byte[] message) throws IOException {
         if (outFromClient != null) {
 
             outFromClient.write(message);
@@ -76,7 +73,7 @@ public class TcpClient {
                 //receives the message which the server sends back
 
                 inFromServer = new BufferedInputStream(socket.getInputStream());
-                outFromClient = new BufferedOutputStream(socket.getOutputStream());
+                outFromClient = new DataOutputStream(socket.getOutputStream());
 
                 bf = ByteBuffer.allocate(bufferSize);
 
