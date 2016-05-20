@@ -44,11 +44,14 @@ public class TcpClient {
 
         mRun = false;
         isConnected = false;
+        inFromServer = null;
+        outFromClient = null;
     }
 
     public void sendMessage(byte[] message) throws IOException {
         if (outFromClient != null) {
 
+            Log.i("Debug","sendMessage");
             outFromClient.write(message);
             outFromClient.flush();
         }

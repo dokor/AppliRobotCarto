@@ -9,17 +9,19 @@ import android.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 
 public class Reglages {
     //Transport
     public final int Header1 = 0x55AA55AA;
     public final int Header2 = 0x65BA65BA;
-    public short TypeMessage;
-    public short Total_octet;
+    public short TypeMessage = 1;
+    public short Total_octet = 124;
     public short Position_Premier_Octet = 0;
-    public short Nombre_Doctets;
+    public short Nombre_Doctets = 108;
 
     //Etat_Moteur_Droit
     public short CoefP_D = 0;
@@ -48,8 +50,9 @@ public class Reglages {
     //T_ConsigneManuelle
     public float Vitesse = 0;
     public float ConsigneAngulaire = 0;
-    public float VitesseMesure = 0;
+    public float CompensationCompas = 0;
 
+    public float VitesseMesure = 0;
     public short Phare_Luminosite = 1000;
     public short Temperature_Exterieure = 0;
     public short V_Batterie = 0;
@@ -80,25 +83,58 @@ public class Reglages {
     public float CoefB_Ar = 0;
 
     public int Crc;
+/*
+    public enum T_TypeMessage{
+        TYPE_MSG_INTERDIT,
+        TYPE_MSG_DE_SERVICE = 1;
+
+    }*/
 
     //METHODES
+    /*
     public byte[] intToByteArray(int value) {
         return new byte[] {
                 (byte)(value >>> 24),
                 (byte)(value >>> 16),
                 (byte)(value >>> 8),
                 (byte)value};
+    }*/
+
+    public byte[] intToByteArray(int value){
+        ByteBuffer b = ByteBuffer.allocate(4);
+        b.order(ByteOrder.BIG_ENDIAN);
+        b.putInt(value);
+        return b.array();
     }
     public byte[] shortToByteArray(short value) {
-        return new byte[]{
-                (byte) (value >> 8),
-                (byte) value};
+        ByteBuffer b = ByteBuffer.allocate(2);
+        b.order(ByteOrder.BIG_ENDIAN);
+        b.putShort(value);
+        return b.array();
     }
     public byte [] floatToByteArray(float value) {
-        return ByteBuffer.allocate(4).putFloat(value).array();
+        ByteBuffer b = ByteBuffer.allocate(4);
+        b.order(ByteOrder.BIG_ENDIAN);
+        b.putFloat(value);
+        return b.array();
+    }
+
+    public byte[] longToByteArray(long value) {
+        ByteBuffer b = ByteBuffer.allocate(8);
+        b.order(ByteOrder.BIG_ENDIAN);
+        b.putLong(value);
+        return b.array();
+    }
+
+    public static long Crc32Calc(byte[] b){
+        Checksum checksum = new CRC32();
+        checksum.update(b,0,b.length);
+        Log.i("Debug",String.valueOf(checksum.getValue()));
+        return checksum.getValue();
     }
 
     public byte[] concatenateByteArray() throws IOException {
+
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
 
         outputStream.write(intToByteArray(Header1));
@@ -129,6 +165,7 @@ public class Reglages {
         outputStream.write(shortToByteArray(Commande_G));
         outputStream.write(floatToByteArray(Vitesse));
         outputStream.write(floatToByteArray(ConsigneAngulaire));
+        outputStream.write(floatToByteArray(CompensationCompas));
         outputStream.write(floatToByteArray(VitesseMesure));
         outputStream.write(shortToByteArray(Phare_Luminosite));
         outputStream.write(shortToByteArray(Temperature_Exterieure));
@@ -150,34 +187,18 @@ public class Reglages {
         outputStream.write(floatToByteArray(CoefB_Ar));
 
         byte result[] = outputStream.toByteArray( );
-        return result;
+
+        outputStream.write(longToByteArray(Crc32Calc(result)));
+
+        byte resultf[] = outputStream.toByteArray();
+
+        return resultf;
     }
 
 }
 
 
 /*
-public class Reglages {
-    public byte Transport[];//16 octets
-    public byte Etat_Moteur_Droit[];//20
-    public byte Etat_Moteur_Gauche[];//20
-    public byte ConsigneManuelle[];//8
-    public byte VitesseMesure[];//8
-    public byte Phare_Luminosite[];//2
-    public byte Temperature_Exterieure[];//2
-    public short V_Batterie; //2
-    public byte Etat_Sauvegarde[];//1
-    public byte Mode_Commande[];//1
-    public byte ConsigneBoucle_Ouverte_Moteur_Droit[];//4
-    public byte ConsigneBoucle_Ouverte_Moteur_Gauche[];//4
-    public byte Status_Lidar[];//1
-    public byte Status_Moteur_Lidar[];//1
-    public byte Erreur_Code_Lidar[];//2
-    public byte Compas[];//4
-    public byte ConsigneAngulaireNulle[];//4
-    public byte Compensation_Ligne_Droite[];//32
-
-
 
     public void createFromBytes(ByteBuffer buf) throws IOException{
 
