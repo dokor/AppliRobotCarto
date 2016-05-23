@@ -72,10 +72,10 @@ public class TcpClient {
             try {
                 Log.i("Debug", "inside try catch");
 
-                //receives the message which the server sends back
-
+                //r
                 inFromServer = new BufferedInputStream(socket.getInputStream());
-            //    outFromClient = new BufferedOutputStream();
+            //    outFromClient = new BufferedOutputStream();eceives the message which the server sends back
+
                 bf = ByteBuffer.allocate(bufferSize);
 
 
@@ -84,6 +84,7 @@ public class TcpClient {
                 while (mRun) {
                    // Log.i("Debug", "inside while mRun");
                     int b = inFromServer.read();
+
                     if (b == -1){
                         break;
                     }
