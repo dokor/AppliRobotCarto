@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private final static int ID_DIALOG = 0;
     private RelativeLayout layout_joystick;
     private TextView PosX, PosY, Vitesse, PosAng;
-    private Button Phares, Info, Connexion, Deconnexion, Savebtn;
+    private Button Phares, Info, Connexion, Deconnexion, Savebtn, Loadbtn;
     private JoyStickClass js;
     private TcpClient mTcpClient;
     private Reglages reglages;
@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     EditText textmsg;
-    static final int READ_BLOCK_SIZE = 100;
 
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
 
@@ -123,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
 
         Savebtn = (Button) findViewById(R.id.button1);
         Savebtn.setOnClickListener(Save);
+        Loadbtn = (Button) findViewById(R.id.button2);
+        Loadbtn.setOnClickListener(Load);
 
         textmsg=(EditText)findViewById(R.id.editText1);
 
@@ -187,6 +188,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
            Save();
+        }
+    };
+    private OnClickListener Load = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Load();
         }
     };
 
@@ -279,6 +286,9 @@ public class MainActivity extends AppCompatActivity {
             }
             catch (IOException e) {e.printStackTrace();}
         }
+        Toast.makeText(getApplicationContext(), dataString,
+                Toast.LENGTH_SHORT).show();
+
     }
 
 
@@ -290,17 +300,18 @@ public class MainActivity extends AppCompatActivity {
         {
             fis = new FileInputStream(file);
         }
-        catch (FileNotFoundException e) {e.printStackTrace();}
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         InputStreamReader isr = new InputStreamReader(fis);
         BufferedReader br = new BufferedReader(isr);
 
-        String test;
-        int anzahl=0;
+        int nbr_lignes=0;
         try
         {
-            while ((test=br.readLine()) != null)
+            while ((br.readLine()) != null)
             {
-                anzahl++;
+                nbr_lignes++;
             }
         }
         catch (IOException e) {e.printStackTrace();}
@@ -311,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (IOException e) {e.printStackTrace();}
 
-        String[] array = new String[anzahl];
+        String[] array = new String[nbr_lignes];
 
         String line;
         int i = 0;
@@ -324,6 +335,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         catch (IOException e) {e.printStackTrace();}
+        Toast.makeText(getApplicationContext(), array[0],
+                Toast.LENGTH_SHORT).show();
         return array;
     }
 
