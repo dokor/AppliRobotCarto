@@ -256,7 +256,9 @@ public class MainActivity extends AppCompatActivity {
         File file = new File(root + "/settings.txt");
         String dataString = textmsg.getText().toString();
         String[] data = new String[1];
+        String[] dataTEST = {"Coucou", "Bonjour","Ligne 3","Espagnol","Guillermo Del Toro"};
         data[0] = dataString;
+        data = dataTEST;
         FileOutputStream fos = null;
         try
         {
@@ -337,6 +339,11 @@ public class MainActivity extends AppCompatActivity {
         catch (IOException e) {e.printStackTrace();}
         Toast.makeText(getApplicationContext(), array[0],
                 Toast.LENGTH_SHORT).show();
+        try {
+            isr.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return array;
     }
 
