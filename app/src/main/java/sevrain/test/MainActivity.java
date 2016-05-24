@@ -1,8 +1,11 @@
 package sevrain.test;
 
 import android.app.Dialog;
+import android.content.Context;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,26 +17,30 @@ import android.view.MotionEvent;
 import android.view.View.OnTouchListener;
 import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
+
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
-
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
-import android.content.Context;
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-
 
 public class MainActivity extends AppCompatActivity {
     private final static int ID_DIALOG = 0;
     private RelativeLayout layout_joystick;
     private TextView PosX, PosY, Vitesse, PosAng;
-    private Button Phares, Info, Connexion, Deconnexion;
+    private Button Phares, Info, Connexion, Deconnexion, Savebtn;
     private JoyStickClass js;
     private TcpClient mTcpClient;
     private Reglages reglages;
@@ -41,8 +48,10 @@ public class MainActivity extends AppCompatActivity {
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
-    private GoogleApiClient client;
-    public Context lecontext = getBaseContext();
+    EditText textmsg;
+    static final int READ_BLOCK_SIZE = 100;
+
+    public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         Info.setOnClickListener(MontrerInfo);
         Connexion.setOnClickListener(ConnexionRobot);
         Deconnexion.setOnClickListener(DeconnexionRobot);
+
 
         js = new JoyStickClass(getApplicationContext()
                 , layout_joystick, R.drawable.image_button);
@@ -110,27 +120,26 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.test);
 
-        Button btvoir = (Button) findViewById(R.id.btvoir);
-        Button btecrire = (Button) findViewById(R.id.btecrire);
-        btvoir.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
 
-                ReadSettings(lecontext);
-            }
-        });
+        Savebtn = (Button) findViewById(R.id.button1);
+        Savebtn.setOnClickListener(Save);
 
-        btecrire.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                TextView datatext = (TextView) findViewById(R.id.text);
-                String sQuantite = datatext.getText() + "\n";
-                WriteSettings(lecontext, sQuantite);
-            }
-        });
+        textmsg=(EditText)findViewById(R.id.editText1);
+
+        String h = "settings";
+        // this will create a new name everytime and unique
+        // if external memory exists and folder with name Notes
+        if (!root.exists()) {
+            root.mkdirs(); // this will create folder.
+        }
+        File filepath = new File(root, h + ".txt");  // file path to save
+        try {
+            FileWriter writer = new FileWriter(filepath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     private OnClickListener MontrerInfo = new OnClickListener() {
@@ -174,6 +183,13 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private OnClickListener Save = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+           Save();
+        }
+    };
+
     @Override
     public Dialog onCreateDialog(int id) {
         Dialog box = null;
@@ -183,45 +199,6 @@ public class MainActivity extends AppCompatActivity {
         return box;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://sevrain.test/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://sevrain.test/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
-    }
 
 
     //Class pour connexion tcp
@@ -267,58 +244,89 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void Save()
+    {
+        File file = new File(root + "/settings.txt");
+        String dataString = textmsg.getText().toString();
+        String[] data = new String[1];
+        data[0] = dataString;
+        FileOutputStream fos = null;
+        try
+        {
+            fos = new FileOutputStream(file);
+        }
+        catch (FileNotFoundException e) {e.printStackTrace();}
+        try
+        {
+            try
+            {
+                for (int i = 0; i<data.length; i++)
+                {
+                    fos.write(data[i].getBytes());
+                    if (i < data.length-1)
+                    {
+                        fos.write("\n".getBytes());
+                    }
+                }
+            }
+            catch (IOException e) {e.printStackTrace();}
+        }
+        finally
+        {
+            try
+            {
+                fos.close();
+            }
+            catch (IOException e) {e.printStackTrace();}
+        }
+    }
 
-    public void WriteSettings(Context context, String data) {
-        FileOutputStream fOut = null;
-        OutputStreamWriter osw = null;
 
-        try {
-            fOut = context.openFileOutput("settings.dat", MODE_APPEND);
-            osw = new OutputStreamWriter(fOut);
-            osw.write(data);
-            osw.flush();
-            //popup surgissant pour le résultat
-            Toast.makeText(context, "Settings saved", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(context, "Settings not saved", Toast.LENGTH_SHORT).show();
-        } finally {
-            try {
-                osw.close();
-                fOut.close();
-            } catch (IOException e) {
-                Toast.makeText(context, "Settings not saved", Toast.LENGTH_SHORT).show();
+    public  String[] Load()
+    {
+        File file = new File(root + "/settings.txt");
+        FileInputStream fis = null;
+        try
+        {
+            fis = new FileInputStream(file);
+        }
+        catch (FileNotFoundException e) {e.printStackTrace();}
+        InputStreamReader isr = new InputStreamReader(fis);
+        BufferedReader br = new BufferedReader(isr);
+
+        String test;
+        int anzahl=0;
+        try
+        {
+            while ((test=br.readLine()) != null)
+            {
+                anzahl++;
             }
         }
-    }
+        catch (IOException e) {e.printStackTrace();}
 
-
-    public String ReadSettings(Context context) {
-        FileInputStream fIn = null;
-        InputStreamReader isr = null;
-
-        char[] inputBuffer = new char[255];
-        String data = null;
-
-        try {
-            fIn = context.openFileInput("settings.dat");
-            isr = new InputStreamReader(fIn);
-            isr.read(inputBuffer);
-            data = new String(inputBuffer);
-            //affiche le contenu de mon fichier dans un popup surgissant
-            Toast.makeText(context, " " + data, Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(context, "Settings not read", Toast.LENGTH_SHORT).show();
+        try
+        {
+            fis.getChannel().position(0);
         }
-            /*finally {
-               try {
-                      isr.close();
-                      fIn.close();
-                      } catch (IOException e) {
-                        Toast.makeText(context, "Settings not read",Toast.LENGTH_SHORT).show();
-                      }
-            } */
-        return data;
+        catch (IOException e) {e.printStackTrace();}
+
+        String[] array = new String[anzahl];
+
+        String line;
+        int i = 0;
+        try
+        {
+            while((line=br.readLine())!=null)
+            {
+                array[i] = line;
+                i++;
+            }
+        }
+        catch (IOException e) {e.printStackTrace();}
+        return array;
     }
+
 
 }
 
