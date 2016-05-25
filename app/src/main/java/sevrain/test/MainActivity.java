@@ -117,15 +117,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        setContentView(R.layout.test);
-
-
-        Savebtn = (Button) findViewById(R.id.button1);
+        Savebtn = (Button) findViewById(R.id.LoadFichier);
         Savebtn.setOnClickListener(Save);
-        Loadbtn = (Button) findViewById(R.id.button2);
+        Loadbtn = (Button) findViewById(R.id.ReadFichier);
         Loadbtn.setOnClickListener(Load);
-
-        textmsg=(EditText)findViewById(R.id.editText1);
 
         String h = "settings";
         // this will create a new name everytime and unique
@@ -187,13 +182,17 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener Save = new OnClickListener() {
         @Override
         public void onClick(View v) {
-           Save();
+            SaveSettingsInFile(null);
+            Toast.makeText(getApplicationContext(),"Données savegardées",
+                    Toast.LENGTH_SHORT).show();
         }
     };
     private OnClickListener Load = new OnClickListener() {
         @Override
         public void onClick(View v) {
             Load();
+            Toast.makeText(getApplicationContext(),"Données Lu",
+                    Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -251,51 +250,42 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void Save()
+    public void SaveSettingsInFile(String[] data)
     {
+        String[] DataTEST;
         File file = new File(root + "/settings.txt");
-        String dataString = textmsg.getText().toString();
-        String[] data = new String[1];
-        String[] dataTEST = {"Coucou", "Bonjour","Ligne 3","Espagnol","Guillermo Del Toro"};
-        data[0] = dataString;
-        data = dataTEST;
+        String[] dataNull = null;
+        if(data == dataNull){
+            DataTEST = new String[]{"test1,savesettings", "test ligne 2", "test ligne 3", "test ligne 4", "test ligne 5"};
+            data = DataTEST;
+        }
+
         FileOutputStream fos = null;
         try
         {
             fos = new FileOutputStream(file);
         }
-        catch (FileNotFoundException e) {e.printStackTrace();}
+        catch (FileNotFoundException e){e.printStackTrace();}
+
         try
         {
-            try
+            for (int i = 0; i<data.length; i++)
             {
-                for (int i = 0; i<data.length; i++)
+                fos.write(data[i].getBytes());
+                if (i < data.length-1)
                 {
-                    fos.write(data[i].getBytes());
-                    if (i < data.length-1)
-                    {
-                        fos.write("\n".getBytes());
-                    }
+                    fos.write("\n".getBytes());
                 }
             }
-            catch (IOException e) {e.printStackTrace();}
+            fos.close();
         }
-        finally
-        {
-            try
-            {
-                fos.close();
-            }
-            catch (IOException e) {e.printStackTrace();}
-        }
-        Toast.makeText(getApplicationContext(), dataString,
-                Toast.LENGTH_SHORT).show();
-
+        catch (IOException e) {e.printStackTrace();}
     }
 
-
-    public  String[] Load()
+    public void Load()
     {
+        String[] datatab = new String[]{"test1,AutoLoad", "test ligne 2", "test ligne 3", "test ligne 4", "test ligne 5"};
+        SaveSettingsInFile(datatab);
         File file = new File(root + "/settings.txt");
         FileInputStream fis = null;
         try
@@ -309,45 +299,29 @@ public class MainActivity extends AppCompatActivity {
         BufferedReader br = new BufferedReader(isr);
 
         int nbr_lignes=0;
-        try
-        {
-            while ((br.readLine()) != null)
-            {
-                nbr_lignes++;
-            }
-        }
-        catch (IOException e) {e.printStackTrace();}
-
-        try
-        {
-            fis.getChannel().position(0);
-        }
-        catch (IOException e) {e.printStackTrace();}
-
-        String[] array = new String[nbr_lignes];
-
+        String[] array = new String[5];
         String line;
         int i = 0;
         try
         {
-            while((line=br.readLine())!=null)
+            while ((line = br.readLine()) != null)
             {
+                nbr_lignes++;
                 array[i] = line;
                 i++;
             }
+            fis.getChannel().position(0);
+            isr.close();
         }
         catch (IOException e) {e.printStackTrace();}
-        Toast.makeText(getApplicationContext(), array[0],
-                Toast.LENGTH_SHORT).show();
-        try {
-            isr.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        for (String ligneTab : array)
+        {
+            Toast.makeText(getApplicationContext(), ligneTab,
+                    Toast.LENGTH_SHORT).show();
         }
-        return array;
+//        return array;
     }
-
-
 }
 
 
