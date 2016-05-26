@@ -207,8 +207,6 @@ public class MainActivity extends AppCompatActivity {
         return box;
     }
 
-
-
     //Class pour connexion tcp
     public class ConnectTask extends AsyncTask<Void, ByteBuffer, TcpClient> {
 
