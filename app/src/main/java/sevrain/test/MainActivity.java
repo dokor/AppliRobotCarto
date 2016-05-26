@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     EditText textmsg;
 
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
+    public File file = new File(root + "/settings.txt");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         PosY = (TextView) findViewById(R.id.PosY);
         Phares = (Button) findViewById(R.id.Phares);
         Info = (Button) findViewById(R.id.Info);
+
         Connexion = (Button) findViewById(R.id.Connexion);
         Deconnexion = (Button) findViewById(R.id.Deconnexion);
 
@@ -119,18 +121,12 @@ public class MainActivity extends AppCompatActivity {
 
         Savebtn = (Button) findViewById(R.id.LoadFichier);
         Savebtn.setOnClickListener(Save);
-        Loadbtn = (Button) findViewById(R.id.ReadFichier);
-        Loadbtn.setOnClickListener(Load);
 
-        String h = "settings";
-        // this will create a new name everytime and unique
-        // if external memory exists and folder with name Notes
         if (!root.exists()) {
             root.mkdirs(); // this will create folder.
         }
-        File filepath = new File(root, h + ".txt");  // file path to save
         try {
-            FileWriter writer = new FileWriter(filepath);
+            FileWriter writer = new FileWriter(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -160,6 +156,9 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             Log.i("Debug", "Connexion");
             new ConnectTask().execute();
+            Byte[] Bdatarecu = GetDataRobot();
+            String[] SdataAEcrire = TransBtoS(Bdatarecu);
+            InitSaveSettingsInFile(SdataAEcrire);
             /*
             if(mTcpClient.mRun != true){
                 mTcpClient.stopClient();
@@ -167,6 +166,17 @@ public class MainActivity extends AppCompatActivity {
 
         }
     };
+
+    private String[] TransBtoS(Byte[] ByteData)
+    {
+        String[] StringArray = new String[2];
+        return StringArray;
+    }
+    private Byte[] GetDataRobot()
+    {
+        Byte[] bytearray = new Byte[2];
+        return bytearray;
+    }
 
     private OnClickListener DeconnexionRobot = new OnClickListener() {
         @Override
@@ -182,16 +192,8 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener Save = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            SaveSettingsInFile(null);
+
             Toast.makeText(getApplicationContext(),"Données savegardées",
-                    Toast.LENGTH_SHORT).show();
-        }
-    };
-    private OnClickListener Load = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Load();
-            Toast.makeText(getApplicationContext(),"Données Lu",
                     Toast.LENGTH_SHORT).show();
         }
     };
@@ -250,10 +252,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void SaveSettingsInFile(String[] data)
+
+
+    public void SaveSettingsInFileUNIT(String ligneAEcrire, FileOutputStream  fos)
+    {
+        try
+        {
+//            for (int i = 0; i<data.length; i++)
+//            {
+//                fos.
+//                fos.write(data[i].getBytes());
+//                if (i < data.length-1)
+//                {
+//                    fos.write("\n".getBytes());
+//                }
+//            }
+            fos.write(ligneAEcrire.getBytes());
+        }
+        catch (IOException e) {e.printStackTrace();}
+    }
+
+    public void InitSaveSettingsInFile(String[] data)
     {
         String[] DataTEST;
-        File file = new File(root + "/settings.txt");
         String[] dataNull = null;
         if(data == dataNull){
             DataTEST = new String[]{"test1,savesettings", "test ligne 2", "test ligne 3", "test ligne 4", "test ligne 5"};
@@ -267,26 +288,20 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (FileNotFoundException e){e.printStackTrace();}
 
+        for (String ligneTab : data) {
+            SaveSettingsInFileUNIT(ligneTab, fos); //Ecriture de chaque ligne dans le fichier settings
+        }
         try
         {
-            for (int i = 0; i<data.length; i++)
-            {
-                fos.write(data[i].getBytes());
-                if (i < data.length-1)
-                {
-                    fos.write("\n".getBytes());
-                }
-            }
             fos.close();
         }
         catch (IOException e) {e.printStackTrace();}
+
     }
 
     public void Load()
     {
         String[] datatab = new String[]{"test1,AutoLoad", "test ligne 2", "test ligne 3", "test ligne 4", "test ligne 5"};
-        SaveSettingsInFile(datatab);
-        File file = new File(root + "/settings.txt");
         FileInputStream fis = null;
         try
         {

@@ -80,15 +80,6 @@
             android:layout_below="@+id/Deconnexion"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"/>
-        <Button
-            android:id="@+id/ReadFichier"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/Connexion"
-            android:text="Read Text From file"
-            android:onClick="Load"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"/>
 
         <Button
             android:id="@+id/LoadFichier"
