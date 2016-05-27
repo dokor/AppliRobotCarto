@@ -17,7 +17,7 @@ public class TcpClient {
     public static final String SERVER_IP = "192.168.0.1"; //your computer IP address
     public static final int SERVER_PORT = 50007;
 
-    public static boolean mRun = false;
+    public boolean mRun = false;
     private OnMessageReceived mMessageListener = null;
 
     private int bufferSize = 5000;

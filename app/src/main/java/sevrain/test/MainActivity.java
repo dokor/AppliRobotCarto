@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener DeconnexionRobot = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (TcpClient.mRun) {
+            if (TcpClient.isConnected) {
                 mTcpClient.stopClient();
                 reglages = null;
             }
@@ -300,7 +300,6 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //            }
             fos.write(ligneAEcrire);
-            fos.write("/n".getBytes());
         }
         catch (IOException e) {e.printStackTrace();}
     }
