@@ -44,10 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private JoyStickClass js;
     private TcpClient mTcpClient;
     private Reglages reglages;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
+
     EditText textmsg;
 
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
@@ -217,21 +214,39 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 //here the messageReceived method is implemented
                 public void messageReceived(ByteBuffer message) throws IOException {
-                    //this method calls the onProgressUpdate
 
-                    publishProgress(message);
+                    //this method calls the onProgressUpdate
+                    byte[] resultat = new byte[4000];
+                    resultat = message.array();
+                    updateBatteryLvl();
+                    message.clear();
+
+
+                    //publishProgress(message);
                     //    Log.i("Debug","Input message: " + message);
-                    if (reglages == null) {
+                    /*if (reglages == null) {
                         Log.i("Debug", "Création de réglages");
                         reglages = new Reglages();
                         reglages.createFromBytes(message);
-
-                    }
+                    }*/
 /*
                     else if (reglages != null){
                            Log.i("Debug","MAJ de réglages");
                         reglages.createFromBytes(message);
                     }*/
+
+                }
+
+
+                public void connectionClosed() {
+
+                }
+
+
+                public void updateBatteryLvl() {
+
+
+
 
                 }
             });
@@ -249,8 +264,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
-
 
     public void SaveSettingsInFileUNIT(String ligneAEcrire, FileOutputStream  fos)
     {
@@ -338,3 +351,25 @@ public class MainActivity extends AppCompatActivity {
 }
 
 
+/*
+ +        0 = 0xAA
+ +        1 = 0x55
+ +        2 = 0xAA
+ +        3 = 0x55
+ +        4 = 0xBA
+ +        5 = 0x65
+ +        6 = 0xBA
+ +        7 = 0x65
+ +        8 = 2
+ +        9 = 0
+ +        10 = 0
+ +        11 = 0
+ +        12 = 0
+ +        13 = 0
+ +        14 = -92
+ +        15 = 0
+ +        16 = 6
+ +        17 = 0
+ +        18 = 4
+ +        19 = 0
+ +        20 = 0*/

@@ -3,11 +3,8 @@ package sevrain.test;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -24,7 +21,7 @@ public class TcpClient {
     private int bufferSize = 20000000;
     private ByteBuffer bf;
     private BufferedInputStream inFromServer;
-    private OutputStream outFromClient;
+    private DataOutputStream outFromClient;
 
 
 
@@ -47,15 +44,19 @@ public class TcpClient {
 
         mRun = false;
         isConnected = false;
+        inFromServer = null;
+        outFromClient = null;
     }
-/*
-    public void sendMessage(String message) {
-        if (mBufferOut != null && !mBufferOut.checkError()) {
-            mBufferOut.println(message);
-            mBufferOut.flush();
+
+    public void sendMessage(byte[] message) throws IOException {
+        if (outFromClient != null) {
+
+            Log.i("Debug","sendMessage");
+            outFromClient.write(message);
+            outFromClient.flush();
         }
     }
-*/
+
     public void run() {
 
         mRun = true;
@@ -72,9 +73,10 @@ public class TcpClient {
             try {
                 Log.i("Debug", "inside try catch");
 
-                //r
+                //receives the message which the server sends back
+
                 inFromServer = new BufferedInputStream(socket.getInputStream());
-            //    outFromClient = new BufferedOutputStream();eceives the message which the server sends back
+                outFromClient = new DataOutputStream(socket.getOutputStream());
 
                 bf = ByteBuffer.allocate(bufferSize);
 
@@ -82,9 +84,8 @@ public class TcpClient {
 
 
                 while (mRun) {
-                   // Log.i("Debug", "inside while mRun");
+                    // Log.i("Debug", "inside while mRun");
                     int b = inFromServer.read();
-
                     if (b == -1){
                         break;
                     }
@@ -95,7 +96,7 @@ public class TcpClient {
 
                     if ( bf != null && mMessageListener != null) {
                         //call the method messageReceived from MyActivity class
-                        Log.i("Debug","Message received !");
+                        // Log.i("Debug","Message received !");
                         mMessageListener.messageReceived(bf);
 
 
@@ -125,6 +126,6 @@ public class TcpClient {
 
 
     public interface OnMessageReceived {
-        public void messageReceived(ByteBuffer message) throws IOException;
+        public void messageReceived(ByteBuffer bf) throws IOException;
     }
 }
