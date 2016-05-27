@@ -85,7 +85,7 @@
             android:id="@+id/LoadFichier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/Connexion"
+            android:layout_below="@+id/ReadFichier"
             android:text="Write Text into File"
             android:onClick="Save"
             android:layout_alignParentRight="true"
