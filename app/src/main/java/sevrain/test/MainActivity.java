@@ -30,6 +30,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.text.DecimalFormat;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -218,15 +220,20 @@ public class MainActivity extends AppCompatActivity {
                     //this method calls the onProgressUpdate
                     byte[] resultat = new byte[164];
                     resultat = message.array();
-                    String[] DonneesTab = new String[164];
-                    for (int i=0;i<164;i++){
-                        DonneesTab[i] = String.format("%8s", Integer.toBinaryString(resultat[i] & 0xFF)).replace(' ', '0');
+                    String[] newtabB = new String[16];
+                    for (int i=0;i<16;i++){
+                        newtabB[i]= String.format("%8s", Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
                     }
+                    //getDevinTypeMessage(newtabB);
+                    //InverseData(newtabB);
+                    String[] DonneesTab = new String[164];
+                    for (int i=16;i<164;i++){
+                        DonneesTab[i] = String.format("%8s", Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+                    }
+
+
                     //InitSaveSettingsInFileByte(resultat);
                     InitSaveSettingsInFile(DonneesTab);
-                    Toast.makeText(getApplicationContext(), DonneesTab[0],
-                            Toast.LENGTH_SHORT).show();
-                    updateBatteryLvl();
                     message.clear();
 
 
@@ -271,6 +278,36 @@ public class MainActivity extends AppCompatActivity {
             //    Log.i("onProgressUpdate","" + values);
 
         }
+    }
+
+
+    public String[] DevinTypeMessage(String[] tabStringADecoup)
+    {
+        String TabHeader = tabStringADecoup[3];
+       // TabHeader = String.format("%8s", Integer.toHexString( TabHeader & 0xFF)).replace(' ', '0');
+        switch(TabHeader) {
+            //TYPE_MSG_DE_SERVICE
+            case "1":
+                break;
+            //TYPE_MSG_REGLAGE
+            case "2" :
+                break;
+            //TYPE_MSG_LONG
+            case "40" :
+                break;
+            //TYPE_MSG_SCAN
+            case "41" :
+                break;
+            //TYPE_MSG_COMPAS_XY
+            case "42" :
+                break;
+            //Other
+            default:
+                break;
+        }
+
+
+        return tabStringADecoup;
     }
 
     public void SaveSettingsInFileUNIT(String ligneAEcrire, FileOutputStream  fos)
