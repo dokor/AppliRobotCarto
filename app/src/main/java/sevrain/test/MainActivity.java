@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     EditText textmsg;
 
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
-    public File file = new File(root + "/settings.txt");
+    public File file = new File(root + "/settings.csv");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,9 +153,9 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             Log.i("Debug", "Connexion");
             new ConnectTask().execute();
-            Byte[] Bdatarecu = GetDataRobot();
-            String[] SdataAEcrire = TransBtoS(Bdatarecu);
-            InitSaveSettingsInFile(SdataAEcrire);
+//            Byte[] Bdatarecu = GetDataRobot();
+//            String[] SdataAEcrire = TransBtoS(Bdatarecu);
+//            InitSaveSettingsInFile(SdataAEcrire);
             /*
             if(mTcpClient.mRun != true){
                 mTcpClient.stopClient();
@@ -218,10 +218,14 @@ public class MainActivity extends AppCompatActivity {
                     //this method calls the onProgressUpdate
                     byte[] resultat = new byte[164];
                     resultat = message.array();
+                    String[] DonneesTab = new String[164];
                     for (int i=0;i<164;i++){
-                        String s = String.format("%8s", Integer.toBinaryString(resultat[i] & 0xFF)).replace(' ', '0');
+                        DonneesTab[i] = String.format("%8s", Integer.toBinaryString(resultat[i] & 0xFF)).replace(' ', '0');
                     }
-                    InitSaveSettingsInFileByte(resultat);
+                    //InitSaveSettingsInFileByte(resultat);
+                    InitSaveSettingsInFile(DonneesTab);
+                    Toast.makeText(getApplicationContext(), DonneesTab[0],
+                            Toast.LENGTH_SHORT).show();
                     updateBatteryLvl();
                     message.clear();
 
@@ -283,6 +287,7 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //            }
             fos.write(ligneAEcrire.getBytes());
+            fos.write("\n".getBytes());
         }
         catch (IOException e) {e.printStackTrace();}
     }
@@ -300,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //            }
             fos.write(ligneAEcrire);
-            fos.write("/n".getBytes());
+            fos.write("\n".getBytes());
         }
         catch (IOException e) {e.printStackTrace();}
     }
