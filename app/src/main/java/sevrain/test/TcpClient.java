@@ -1,27 +1,31 @@
 package sevrain.test;
 
 import android.util.Log;
+import android.view.ViewDebug;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class TcpClient {
 
     public static final String SERVER_IP = "192.168.0.1"; //your computer IP address
     public static final int SERVER_PORT = 50007;
-    public static boolean isConnected;
 
-    private boolean mRun = false;
+    public boolean mRun = false;
     private OnMessageReceived mMessageListener = null;
 
-    private int bufferSize = 20000000;
-    private ByteBuffer bf;
+    private int bufferSize = 5000;
+    public ByteBuffer bf;
     private BufferedInputStream inFromServer;
-    private DataOutputStream outFromClient;
+    private BufferedOutputStream outFromClient;
+    //    private DataOutputStream outFromClient;
+    public byte[] Transport = new byte[16];
 
 
 
@@ -40,10 +44,8 @@ public class TcpClient {
         Log.i("Debug", "stopClient");
 
         // send mesage that we are closing the connection
-        //sendMessage(Constants.CLOSED_CONNECTION + "Kazy");
 
         mRun = false;
-        isConnected = false;
         inFromServer = null;
         outFromClient = null;
     }
@@ -51,7 +53,7 @@ public class TcpClient {
     public void sendMessage(byte[] message) throws IOException {
         if (outFromClient != null) {
 
-            Log.i("Debug","sendMessage");
+//            Log.i("Debug","sendMessage");
             outFromClient.write(message);
             outFromClient.flush();
         }
@@ -60,7 +62,6 @@ public class TcpClient {
     public void run() {
 
         mRun = true;
-        isConnected = true;
         try {
             //here you must put your computer's IP address.
             InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
@@ -76,7 +77,8 @@ public class TcpClient {
                 //receives the message which the server sends back
 
                 inFromServer = new BufferedInputStream(socket.getInputStream());
-                outFromClient = new DataOutputStream(socket.getOutputStream());
+                outFromClient = new BufferedOutputStream(socket.getOutputStream());
+//                outFromClient = new DataOutputStream(socket.getOutputStream());
 
                 bf = ByteBuffer.allocate(bufferSize);
 
@@ -85,47 +87,47 @@ public class TcpClient {
 
                 while (mRun) {
                     // Log.i("Debug", "inside while mRun");
-                    int b = inFromServer.read();
-                    if (b == -1){
-                        break;
-                    }
-                    bf.put((byte) b);
 
-                 /*   bf.get(bb);
-                    Log.i("Debug", Integer.toString(bb.length));*/
+                    bf.order(ByteOrder.LITTLE_ENDIAN);
+                    for (int i=0;i<5000;i++) {
+                        int b = inFromServer.read();
+
+                        if (b == -1) {
+                            break;
+                        }
+
+                        bf.put((byte) b);
+
+                    }
 
                     if ( bf != null && mMessageListener != null) {
                         //call the method messageReceived from MyActivity class
                         // Log.i("Debug","Message received !");
                         mMessageListener.messageReceived(bf);
-
-
+                        mMessageListener.updateBatteryLvl();
                     }
-
+                    bf.clear();
                 }
-
-            } catch (Exception e) {
-
+            }
+            catch (Exception e) {
                 Log.e("TCP", "S: Error", e);
-
-            } finally {
+            }
+            finally {
                 //the socket must be closed. It is not possible to reconnect to this socket
                 // after it is closed, which means a new socket instance has to be created.
                 Log.i("Debug","Socket closed");
                 socket.close();
+                mMessageListener.connectionClosed();
             }
-
         }
         catch (Exception e) {
-
             Log.e("TCP", "C: Error", e);
-
         }
     }
 
-
-
     public interface OnMessageReceived {
         public void messageReceived(ByteBuffer bf) throws IOException;
+        public void connectionClosed();
+        public void updateBatteryLvl();
     }
 }
