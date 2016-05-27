@@ -221,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
                     for (int i=0;i<164;i++){
                         String s = String.format("%8s", Integer.toBinaryString(resultat[i] & 0xFF)).replace(' ', '0');
                     }
+                    InitSaveSettingsInFileByte(resultat);
                     updateBatteryLvl();
                     message.clear();
 
@@ -285,6 +286,23 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (IOException e) {e.printStackTrace();}
     }
+    public void SaveSettingsInFileUNITByte(byte ligneAEcrire, FileOutputStream  fos)
+    {
+        try
+        {
+//            for (int i = 0; i<data.length; i++)
+//            {
+//                fos.
+//                fos.write(data[i].getBytes());
+//                if (i < data.length-1)
+//                {
+//                    fos.write("\n".getBytes());
+//                }
+//            }
+            fos.write(ligneAEcrire);
+        }
+        catch (IOException e) {e.printStackTrace();}
+    }
 
     public void InitSaveSettingsInFile(String[] data)
     {
@@ -304,6 +322,28 @@ public class MainActivity extends AppCompatActivity {
 
         for (String ligneTab : data) {
             SaveSettingsInFileUNIT(ligneTab, fos); //Ecriture de chaque ligne dans le fichier settings
+        }
+        try
+        {
+            fos.close();
+        }
+        catch (IOException e) {e.printStackTrace();}
+
+    }
+    public void InitSaveSettingsInFileByte(byte[] data)
+    {
+        Byte[] dataNull = null;
+
+
+        FileOutputStream fos = null;
+        try
+        {
+            fos = new FileOutputStream(file);
+        }
+        catch (FileNotFoundException e){e.printStackTrace();}
+
+        for (Byte ligneTab : data) {
+            SaveSettingsInFileUNITByte(ligneTab, fos); //Ecriture de chaque ligne dans le fichier settings
         }
         try
         {
