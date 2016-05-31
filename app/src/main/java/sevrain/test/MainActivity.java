@@ -222,9 +222,9 @@ public class MainActivity extends AppCompatActivity {
                     resultat = message.array();
                     String[] newtabB = new String[16];
                     for (int i=0;i<16;i++){
-                        newtabB[i]= String.format("%8s", Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+                        newtabB[i]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
                     }
-                    //getDevinTypeMessage(newtabB);
+                    DevinTypeMessage(newtabB);
                     //InverseData(newtabB);
                     String[] DonneesTab = new String[164];
                     for (int i=16;i<164;i++){
@@ -281,33 +281,42 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public String[] DevinTypeMessage(String[] tabStringADecoup)
+    public String DevinTypeMessage(String[] tabStringADecoup)
     {
-        String TabHeader = tabStringADecoup[3];
-       // TabHeader = String.format("%8s", Integer.toHexString( TabHeader & 0xFF)).replace(' ', '0');
-        switch(TabHeader) {
+        String TabHeader = new String();
+        for(int i = 0; i<4; i++){
+            TabHeader += tabStringADecoup[i];
+        }
+        String TabHeaderNum = TabHeader.toString();
+        switch(TabHeaderNum) {
             //TYPE_MSG_DE_SERVICE
             case "1":
+                TabHeader = "TYPE_MSG_DE_SERVICE";
                 break;
             //TYPE_MSG_REGLAGE
             case "2" :
+                TabHeader = "TYPE_MSG_REGLAGE";
                 break;
             //TYPE_MSG_LONG
             case "40" :
+                TabHeader = "TYPE_MSG_LONG";
                 break;
             //TYPE_MSG_SCAN
             case "41" :
+                TabHeader = "TYPE_MSG_SCAN";
                 break;
             //TYPE_MSG_COMPAS_XY
             case "42" :
+                TabHeader = "TYPE_MSG_COMPAS_XY";
                 break;
             //Other
             default:
+                TabHeader = "ERROR DEFAULT";
                 break;
         }
 
 
-        return tabStringADecoup;
+        return TabHeader;
     }
 
     public void SaveSettingsInFileUNIT(String ligneAEcrire, FileOutputStream  fos)
