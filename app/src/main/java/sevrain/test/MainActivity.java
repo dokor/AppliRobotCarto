@@ -222,19 +222,66 @@ public class MainActivity extends AppCompatActivity {
                     resultat = message.array();
 
                     String[] newtabB = new String[16];
+                    String[] Tab2o = new String[2];
+                    String[] Tab4o = new String[4];
+                    int j=16;
+
                     for (int i=0;i<16;i++){
                         newtabB[i]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
                     }
                     newtabB = InverseData(newtabB);
                     boolean test = VerifIntegriteHeader(newtabB);
-                    Toast.makeText(getApplicationContext(), "",
-                            Toast.LENGTH_SHORT).show();
                     DevinTypeMessage(newtabB);
 
                     String[] DonneesTab = new String[164];
-                    for (int i=16;i<164;i++){
-                        DonneesTab[i] = String.format("%8s", Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+                    for (int i=0;i<16;i++){
+                        DonneesTab[i] = newtabB[i];
                     }
+                    for (int i=0;i<20;i++) {
+                        DecoupeInverseData2(resultat, DonneesTab, j);
+                        j++;
+                        j++;
+                    }
+                    for (int i=0;i<4;i++){
+                        DecoupeInverseData4(resultat,DonneesTab,j);
+                        j=j+4;
+                    }
+                    for (int i=0;i<3;i++) {
+                        DecoupeInverseData2(resultat, DonneesTab, j);
+                        j++;
+                        j++;
+                    }
+                    for (int i=0;i<2;i++){
+                        DonneesTab[j] = String.format(Integer.toHexString(resultat[j] & 0xFF)).replace(' ', '0');
+                        j++;
+                    }
+                    for (int i=0;i<4;i++) {
+                        DecoupeInverseData2(resultat, DonneesTab, j);
+                        j++;
+                        j++;
+                    }
+                    for (int i=0;i<2;i++){
+                        DonneesTab[j] = String.format(Integer.toHexString(resultat[j] & 0xFF)).replace(' ', '0');
+                        j++;
+                    }
+                    DecoupeInverseData2(resultat, DonneesTab, j);
+                    j++;
+                    j++;
+                    for (int i=0;i<6;i++) {
+                        DecoupeInverseData2(resultat, DonneesTab, j);
+                        j++;
+                        j++;
+                    }
+
+/*                    for (int i=16;i<17;i++){
+                        Tab2o[i]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+                    }
+                    Tab2o = InverseData(Tab2o);
+                    for (int i=16;i<17;i++){
+                        DonneesTab[i] = Tab2o[j];
+                        j++;
+                    }*/
+
 
 
                     //InitSaveSettingsInFileByte(resultat);
@@ -278,7 +325,39 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+    public String[] DecoupeInverseData2(byte [] Tab,String[] Donnees,int Indice){
+        String[] Tab2o_inverse = new String[2];
+        int j = 0;
 
+        for (int i=Indice; i<=Indice+1; i++){
+            Tab2o_inverse[j]= String.format(Integer.toHexString(Tab[i] & 0xFF)).replace(' ', '0');
+            j++;
+        }
+        j=0;
+        Tab2o_inverse = InverseData(Tab2o_inverse);
+        for (int i=Indice; i<=Indice+1;i++){
+            Donnees[i] = Tab2o_inverse[j];
+            j++;
+        }
+        return Tab2o_inverse;
+    }
+
+    public String[] DecoupeInverseData4(byte [] Tab,String[] Donnees,int Indice){
+        String[] Tab4o_inverse = new String[4];
+        int j = 0;
+
+        for (int i=Indice; i<=Indice+3; i++){
+            Tab4o_inverse[j]= String.format(Integer.toHexString(Tab[i] & 0xFF)).replace(' ', '0');
+            j++;
+        }
+        j=0;
+        Tab4o_inverse = InverseData(Tab4o_inverse);
+        for (int i=Indice; i<=Indice+3;i++){
+            Donnees[i] = Tab4o_inverse[j];
+            j++;
+        }
+        return Tab4o_inverse;
+    }
     public boolean VerifIntegriteHeader(String[] TabAAnalyser){
         String HeaderAttendu1 = "55aa55aa";
         String HeaderAttendu2 = "65ba65ba";
