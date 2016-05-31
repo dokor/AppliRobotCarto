@@ -227,8 +227,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     newtabB = InverseData(newtabB);
                     boolean test = VerifIntegriteHeader(newtabB);
-                    Toast.makeText(getApplicationContext(), "",
-                            Toast.LENGTH_SHORT).show();
+
                     DevinTypeMessage(newtabB);
 
                     String[] DonneesTab = new String[164];
