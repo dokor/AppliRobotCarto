@@ -226,7 +226,9 @@ public class MainActivity extends AppCompatActivity {
                         newtabB[i]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
                     }
                     newtabB = InverseData(newtabB);
-                    VerifIntegrite(newtabB);
+                    boolean test = VerifIntegriteHeader(newtabB);
+                    Toast.makeText(getApplicationContext(), "",
+                            Toast.LENGTH_SHORT).show();
                     DevinTypeMessage(newtabB);
 
                     String[] DonneesTab = new String[164];
@@ -255,17 +257,11 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-
                 public void connectionClosed() {
 
                 }
 
-
                 public void updateBatteryLvl() {
-
-
-
-
                 }
             });
             mTcpClient.run();
@@ -283,12 +279,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public boolean VerifIntegrite(String[] TabAAnalyser){
+    public boolean VerifIntegriteHeader(String[] TabAAnalyser){
+        String HeaderAttendu1 = "55aa55aa";
+        String HeaderAttendu2 = "65ba65ba";
         String Header1 = ConcateneGroupe(TabAAnalyser, 0,3);
         String Header2 = ConcateneGroupe(TabAAnalyser, 4,7);
-        if(Header1 == "55aa55aa"    && Header2 == "65ba65ba"){
-            //Intégrité OK
-            return true;
+        if(Header1.equals(HeaderAttendu1)){
+            if(Header2.equals(HeaderAttendu2)){
+                //Intégrité OK
+                return true;
+            }
+            else {
+                //Intégrité BAD ou BUG
+                return false;
+            }
         }
         else{
             //Intégrité BAD ou BUG
@@ -297,19 +301,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String ConcateneGroupe(String[] Tab, int indexDepart, int indexArriv){
-       String StringConcat = null;
-       for(int i = indexDepart; i< indexArriv;i++){
-           StringConcat = Concatene(Tab);
+       String StringConcat;
+        int k = indexArriv - indexDepart + 1;
+        int kcompt=0;
+       String[] TabaConcatene = new String[k];
+       for(int i = indexDepart; i< indexArriv+1;i++){
+           TabaConcatene[kcompt] = Tab[i];
+           kcompt++;
        }
+        StringConcat =  Concatene(TabaConcatene);
         return StringConcat;
     }
+
     public String Concatene(String[] TabAConcatene){
-        String Stringcomp = null;
+        String Stringcomp = new String();
         for(String ligne : TabAConcatene) {
             Stringcomp += ligne;
         }
         return Stringcomp;
     }
+
     public String DevinTypeMessage(String[] tabStringADecoup)
     {
         String TabHeader = new String();
@@ -347,7 +358,6 @@ public class MainActivity extends AppCompatActivity {
 
         return TabHeader;
     }
-
 
     public String[] InverseData(String[] Tab){
         String[] Tab_Inverse = new String[Tab.length];
