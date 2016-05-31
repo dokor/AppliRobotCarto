@@ -220,12 +220,15 @@ public class MainActivity extends AppCompatActivity {
                     //this method calls the onProgressUpdate
                     byte[] resultat = new byte[164];
                     resultat = message.array();
+
                     String[] newtabB = new String[16];
                     for (int i=0;i<16;i++){
                         newtabB[i]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
                     }
+                    newtabB = InverseData(newtabB);
+                    VerifIntegrite(newtabB);
                     DevinTypeMessage(newtabB);
-                    //InverseData(newtabB);
+
                     String[] DonneesTab = new String[164];
                     for (int i=16;i<164;i++){
                         DonneesTab[i] = String.format("%8s", Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
@@ -280,7 +283,33 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public boolean VerifIntegrite(String[] TabAAnalyser){
+        String Header1 = ConcateneGroupe(TabAAnalyser, 0,3);
+        String Header2 = ConcateneGroupe(TabAAnalyser, 4,7);
+        if(Header1 == "55aa55aa"    && Header2 == "65ba65ba"){
+            //Intégrité OK
+            return true;
+        }
+        else{
+            //Intégrité BAD ou BUG
+            return false;
+        }
+    }
 
+    public String ConcateneGroupe(String[] Tab, int indexDepart, int indexArriv){
+       String StringConcat = null;
+       for(int i = indexDepart; i< indexArriv;i++){
+           StringConcat = Concatene(Tab);
+       }
+        return StringConcat;
+    }
+    public String Concatene(String[] TabAConcatene){
+        String Stringcomp = null;
+        for(String ligne : TabAConcatene) {
+            Stringcomp += ligne;
+        }
+        return Stringcomp;
+    }
     public String DevinTypeMessage(String[] tabStringADecoup)
     {
         String TabHeader = new String();
@@ -318,6 +347,60 @@ public class MainActivity extends AppCompatActivity {
 
         return TabHeader;
     }
+
+
+    public String[] InverseData(String[] Tab){
+        String[] Tab_Inverse = new String[Tab.length];
+
+        switch(Tab.length){
+            case 2 :
+
+                Tab_Inverse[0] = Tab[1];
+                Tab_Inverse[1] = Tab[0];
+
+                break;
+
+            case 4 :
+
+                Tab_Inverse[0] = Tab[3];
+                Tab_Inverse[1] = Tab[2];
+                Tab_Inverse[2] = Tab[1];
+                Tab_Inverse[3] = Tab[0];
+
+                break;
+
+            //T_Transport
+            case 16 :
+                //Header1
+                Tab_Inverse[0] = Tab[3];
+                Tab_Inverse[1] = Tab[2];
+                Tab_Inverse[2] = Tab[1];
+                Tab_Inverse[3] = Tab[0];
+                //Header2
+                Tab_Inverse[4] = Tab[7];
+                Tab_Inverse[5] = Tab[6];
+                Tab_Inverse[6] = Tab[5];
+                Tab_Inverse[7] = Tab[4];
+                //TypeMessage
+                Tab_Inverse[8] = Tab[9];
+                Tab_Inverse[9] = Tab[8];
+                //Total_Octet
+                Tab_Inverse[10] = Tab[11];
+                Tab_Inverse[11] = Tab[10];
+                //Position_Premier_Octet
+                Tab_Inverse[12] = Tab[13];
+                Tab_Inverse[13] = Tab[12];
+                //Nombre_Doctets
+                Tab_Inverse[14] = Tab[15];
+                Tab_Inverse[15] = Tab[14];
+
+                break;
+            default :
+                break;
+        }
+        return Tab_Inverse;
+    }
+
 
     public void SaveSettingsInFileUNIT(String ligneAEcrire, FileOutputStream  fos)
     {
