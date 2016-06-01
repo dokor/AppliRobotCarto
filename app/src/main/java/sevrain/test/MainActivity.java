@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
                     resultat = message.array();
                     //Creation du Tableau de string
                     String[] T_Transport = new String[16];
-                    String[] DonneeTabPropre = new String[164];
+                    String[] DonneeTabPropre = new String[64];
 
                     //Remplissage du tableau de string avec les valeurs en Hexa de resultat
                     for (int i=0;i<16;i++){
@@ -220,9 +220,6 @@ public class MainActivity extends AppCompatActivity {
                     if(VerifIntegriteHeader(T_Transport)){
                         //Header OK
                         DevinTypeMessage(T_Transport);
-                        for (int i=0;i<16;i++){
-                            DonneeTabPropre[i] = T_Transport[i];
-                        }
                         DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre);
 
                         InitSaveSettingsInFile(DonneeTabPropre);
@@ -247,83 +244,101 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String[] InverseMessageT_Transp(byte[] DonneeByte, String[] DonneeString){
-        int j = 16;
+        int j = 0;
+        int k = 0;
 
-        for (int i=0;i<20;i++) {
-            DecoupeInverseData2(DonneeByte, DonneeString, j);
-              j=j+2;
-        }
-        for (int i=0;i<4;i++){
-            DecoupeInverseData4(DonneeByte,DonneeString,j);
-            j=j+4;
-        }
-        for (int i=0;i<3;i++) {
-            DecoupeInverseData2(DonneeByte, DonneeString, j);
-              j=j+2;
-        }
         for (int i=0;i<2;i++){
-            DonneeString[j] = String.format(Integer.toHexString(DonneeByte[j] & 0xFF)).replace(' ', '0');
-            j++;
+            DecoupeInverseData4(DonneeByte, DonneeString, j,k);
+            j=j+4;
+            k++;
         }
         for (int i=0;i<4;i++) {
-            DecoupeInverseData2(DonneeByte, DonneeString, j);
-              j=j+2;
+            DecoupeInverseData2(DonneeByte, DonneeString,j,k);
+            j=j+2;
+            k++;
+        }
+        for (int i=0;i<20;i++) {
+            DecoupeInverseData2(DonneeByte, DonneeString, j,k);
+            j=j+2;
+            k++;
+        }
+        for (int i=0;i<4;i++){
+            DecoupeInverseData4(DonneeByte, DonneeString, j,k);
+            j=j+4;
+            k++;
+        }
+        for (int i=0;i<3;i++) {
+            DecoupeInverseData2(DonneeByte, DonneeString, j,k);
+            j=j+2;
+            k++;
         }
         for (int i=0;i<2;i++){
-            DonneeString[j] = String.format(Integer.toHexString(DonneeByte[j] & 0xFF)).replace(' ', '0');
+            DonneeString[k] = String.format(Integer.toHexString(DonneeByte[j] & 0xFF)).replace(' ', '0');
             j++;
+            k++;
+        }
+        for (int i=0;i<4;i++) {
+            DecoupeInverseData2(DonneeByte, DonneeString, j,k);
+            j=j+2;
+            k++;
+        }
+        for (int i=0;i<2;i++){
+            DonneeString[k] = String.format(Integer.toHexString(DonneeByte[j] & 0xFF)).replace(' ', '0');
+            j++;
+            k++;
         }
         for (int i=0;i<3;i++){
-        DecoupeInverseData2(DonneeByte, DonneeString, j);
-              j=j+2;
+            DecoupeInverseData2(DonneeByte, DonneeString, j,k);
+            j=j+2;
+            k++;
         }
         for (int i=0;i<2;i++){
-            DecoupeInverseData4(DonneeByte,DonneeString,j);
+            DecoupeInverseData4(DonneeByte, DonneeString, j,k);
             j=j+4;
+            k++;
         }
         for (int i=0;i<6;i++) {
-            DecoupeInverseData2(DonneeByte, DonneeString, j);
-              j=j+2;
+            DecoupeInverseData2(DonneeByte, DonneeString, j,k);
+            j=j+2;
+            k++;
         }
         for (int i=0;i<12;i++){
-            DecoupeInverseData4(DonneeByte,DonneeString,j);
+            DecoupeInverseData4(DonneeByte, DonneeString, j,k);
             j=j+4;
+            k++;
         }
         return DonneeString;
     }
 
-    public String[] DecoupeInverseData2(byte [] Tab,String[] Donnees,int Indice){
+    public String[] DecoupeInverseData2(byte [] DonneeByte,String[] Donnees,int Indice,int k){
         String[] Tab2o_inverse = new String[2];
+        String Mot2o;
         int j = 0;
 
         for (int i=Indice; i<=Indice+1; i++){
-            Tab2o_inverse[j]= String.format(Integer.toHexString(Tab[i] & 0xFF)).replace(' ', '0');
+            Tab2o_inverse[j]= String.format(Integer.toHexString(DonneeByte[i] & 0xFF)).replace(' ', '0');
             j++;
         }
-        j=0;
         Tab2o_inverse = InverseData(Tab2o_inverse);
+        Mot2o = Tab2o_inverse[0].concat(Tab2o_inverse[1]);
+        Donnees[k]=Mot2o;
 
-        for (int i=Indice; i<=Indice+1;i++){
-            Donnees[i] = Tab2o_inverse[j];
-            j++;
-        }
         return Tab2o_inverse;
     }
 
-    public String[] DecoupeInverseData4(byte [] Tab,String[] Donnees,int Indice){
+    public String[] DecoupeInverseData4(byte [] DonneeByte,String[] Donnees,int Indice,int k){
         String[] Tab4o_inverse = new String[4];
         int j = 0;
+        String Mot4o;
 
         for (int i=Indice; i<=Indice+3; i++){
-            Tab4o_inverse[j]= String.format(Integer.toHexString(Tab[i] & 0xFF)).replace(' ', '0');
+            Tab4o_inverse[j]= String.format(Integer.toHexString(DonneeByte[i] & 0xFF)).replace(' ', '0');
             j++;
         }
-        j=0;
         Tab4o_inverse = InverseData(Tab4o_inverse);
-        for (int i=Indice; i<=Indice+3;i++){
-            Donnees[i] = Tab4o_inverse[j];
-            j++;
-        }
+        Mot4o = Tab4o_inverse[0].concat(Tab4o_inverse[1]).concat(Tab4o_inverse[2]).concat(Tab4o_inverse[3]);
+        Donnees[k]= Mot4o;
+
         return Tab4o_inverse;
     }
     public boolean VerifIntegriteHeader(String[] TabAAnalyser){
