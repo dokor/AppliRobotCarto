@@ -242,9 +242,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(ByteBuffer... values) {
             super.onProgressUpdate();
-
             //    Log.i("onProgressUpdate","" + values);
-
         }
     }
 
@@ -291,8 +289,6 @@ public class MainActivity extends AppCompatActivity {
             DecoupeInverseData4(DonneeByte,DonneeString,j);
             j=j+4;
         }
-
-
         return DonneeString;
     }
 
@@ -306,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
         }
         j=0;
         Tab2o_inverse = InverseData(Tab2o_inverse);
+
         for (int i=Indice; i<=Indice+1;i++){
             Donnees[i] = Tab2o_inverse[j];
             j++;
