@@ -25,11 +25,13 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 
 import android.app.Activity;
@@ -155,9 +157,6 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             Log.i("Debug", "Connexion");
             new ConnectTask().execute();
-//            Byte[] Bdatarecu = GetDataRobot();
-//            String[] SdataAEcrire = TransBtoS(Bdatarecu);
-//            InitSaveSettingsInFile(SdataAEcrire);
             /*
             if(mTcpClient.mRun != true){
                 mTcpClient.stopClient();
@@ -166,17 +165,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private String[] TransBtoS(Byte[] ByteData)
-    {
-        String[] StringArray = new String[2];
-        return StringArray;
-    }
-    private Byte[] GetDataRobot()
-    {
-        Byte[] bytearray = new Byte[2];
-        return bytearray;
-    }
-
     private OnClickListener DeconnexionRobot = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -184,14 +172,12 @@ public class MainActivity extends AppCompatActivity {
                 mTcpClient.stopClient();
                 reglages = null;
             }
-
         }
     };
 
     private OnClickListener Save = new OnClickListener() {
         @Override
         public void onClick(View v) {
-
             Toast.makeText(getApplicationContext(),"Données savegardées",
                     Toast.LENGTH_SHORT).show();
         }
@@ -208,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
 
     //Class pour connexion tcp
     public class ConnectTask extends AsyncTask<Void, ByteBuffer, TcpClient> {
-
         @Override
         protected TcpClient doInBackground(Void... params) {
             //we create a TCPClient object and
@@ -216,66 +201,79 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 //here the messageReceived method is implemented
                 public void messageReceived(ByteBuffer message) throws IOException {
-
-                    //this method calls the onProgressUpdate
+                    //Creation du Tableau
                     byte[] resultat = new byte[164];
+                    //Remplissage avec les valeurs du message recu
                     resultat = message.array();
-
+                    //Creation du Tableau de string
                     String[] newtabB = new String[16];
+
+                    //Remplissage du tableau de string avec les valeurs en Hexa de resultat
+                    for (int i=0;i<16;i++){
+                        newtabB[i]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+                    }
+                    //Inversion des données du tableau selon methode spécial Header
+                    newtabB = InverseData(newtabB);
+
+                    //Vérification du header, afin d'etre sur de son intégrité
+                    if(VerifIntegriteHeader(newtabB)){
+                        //Header OK
+                        DevinTypeMessage(newtabB);
+                    }
+
+                    String[] DonneesTab = new String[164];
+
+                    for (int i=0;i<164;i++){
+                        DonneesTab[i] = String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+                    }
+
                     String[] Tab2o = new String[2];
                     String[] Tab4o = new String[4];
                     int j=16;
 
-                    for (int i=0;i<16;i++){
-                        newtabB[i]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
-                    }
-                    newtabB = InverseData(newtabB);
-                    boolean test = VerifIntegriteHeader(newtabB);
-<<<<<<< HEAD
+//                    for (int i=0;i<164;i++){
+//                        DonneesTab[i] = String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+//                    }
 
-=======
->>>>>>> origin/Antoine
-                    DevinTypeMessage(newtabB);
-
-                    String[] DonneesTab = new String[164];
-                    for (int i=0;i<16;i++){
-                        DonneesTab[i] = newtabB[i];
-                    }
-                    for (int i=0;i<20;i++) {
-                        DecoupeInverseData2(resultat, DonneesTab, j);
-                        j++;
-                        j++;
-                    }
-                    for (int i=0;i<4;i++){
-                        DecoupeInverseData4(resultat,DonneesTab,j);
-                        j=j+4;
-                    }
-                    for (int i=0;i<3;i++) {
-                        DecoupeInverseData2(resultat, DonneesTab, j);
-                        j++;
-                        j++;
-                    }
-                    for (int i=0;i<2;i++){
-                        DonneesTab[j] = String.format(Integer.toHexString(resultat[j] & 0xFF)).replace(' ', '0');
-                        j++;
-                    }
-                    for (int i=0;i<4;i++) {
-                        DecoupeInverseData2(resultat, DonneesTab, j);
-                        j++;
-                        j++;
-                    }
-                    for (int i=0;i<2;i++){
-                        DonneesTab[j] = String.format(Integer.toHexString(resultat[j] & 0xFF)).replace(' ', '0');
-                        j++;
-                    }
-                    DecoupeInverseData2(resultat, DonneesTab, j);
-                    j++;
-                    j++;
-                    for (int i=0;i<6;i++) {
-                        DecoupeInverseData2(resultat, DonneesTab, j);
-                        j++;
-                        j++;
-                    }
+//                    for (int i=0;i<16;i++){
+//                        DonneesTab[i] = newtabB[i];
+//                        DonneesTab[i] = String.format("%8s", Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+//                    }
+//                    for (int i=0;i<20;i++) {
+//                        DecoupeInverseData2(resultat, DonneesTab, j);
+//                        j++;
+//                        j++;
+//                    }
+//                    for (int i=0;i<4;i++){
+//                        DecoupeInverseData4(resultat,DonneesTab,j);
+//                        j=j+4;
+//                    }
+//                    for (int i=0;i<3;i++) {
+//                        DecoupeInverseData2(resultat, DonneesTab, j);
+//                        j++;
+//                        j++;
+//                    }
+//                    for (int i=0;i<2;i++){
+//                        DonneesTab[j] = String.format(Integer.toHexString(resultat[j] & 0xFF)).replace(' ', '0');
+//                        j++;
+//                    }
+//                    for (int i=0;i<4;i++) {
+//                        DecoupeInverseData2(resultat, DonneesTab, j);
+//                        j++;
+//                        j++;
+//                    }
+//                    for (int i=0;i<2;i++){
+//                        DonneesTab[j] = String.format(Integer.toHexString(resultat[j] & 0xFF)).replace(' ', '0');
+//                        j++;
+//                    }
+//                    DecoupeInverseData2(resultat, DonneesTab, j);
+//                    j++;
+//                    j++;
+//                    for (int i=0;i<6;i++) {
+//                        DecoupeInverseData2(resultat, DonneesTab, j);
+//                        j++;
+//                        j++;
+//                    }
 
 /*                    for (int i=16;i<17;i++){
                         Tab2o[i]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
@@ -288,36 +286,16 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-                    //InitSaveSettingsInFileByte(resultat);
                     InitSaveSettingsInFile(DonneesTab);
                     message.clear();
-
-
-                    //publishProgress(message);
-                    //    Log.i("Debug","Input message: " + message);
-                    /*if (reglages == null) {
-                        Log.i("Debug", "Création de réglages");
-                        reglages = new Reglages();
-                        reglages.createFromBytes(message);
-                    }*/
-/*
-                    else if (reglages != null){
-                           Log.i("Debug","MAJ de réglages");
-                        reglages.createFromBytes(message);
-                    }*/
-
                 }
 
                 public void connectionClosed() {
-
                 }
-
                 public void updateBatteryLvl() {
                 }
             });
             mTcpClient.run();
-
-
             return null;
         }
 
@@ -494,38 +472,24 @@ public class MainActivity extends AppCompatActivity {
         return Tab_Inverse;
     }
 
-
     public void SaveSettingsInFileUNIT(String ligneAEcrire, FileOutputStream  fos)
     {
+        final PrintStream printStream = new PrintStream(fos);
         try
         {
-//            for (int i = 0; i<data.length; i++)
-//            {
-//                fos.
-//                fos.write(data[i].getBytes());
-//                if (i < data.length-1)
-//                {
-//                    fos.write("\n".getBytes());
-//                }
-//            }
-            fos.write(ligneAEcrire.getBytes());
+            printStream.print(ligneAEcrire);
+//          fos.write(ligneAEcrire.getBytes(Charset.forName("ISO-8859-1")));
+            //fos.write(ligneAEcrire.getBytes());
             fos.write("\n".getBytes());
         }
-        catch (IOException e) {e.printStackTrace();}
+        catch (IOException e) {e.printStackTrace();
+            printStream.close();
+        }
     }
     public void SaveSettingsInFileUNITByte(byte ligneAEcrire, FileOutputStream  fos)
     {
         try
         {
-//            for (int i = 0; i<data.length; i++)
-//            {
-//                fos.
-//                fos.write(data[i].getBytes());
-//                if (i < data.length-1)
-//                {
-//                    fos.write("\n".getBytes());
-//                }
-//            }
             fos.write(ligneAEcrire);
             fos.write("\n".getBytes());
         }
@@ -537,7 +501,7 @@ public class MainActivity extends AppCompatActivity {
         String[] DataTEST;
         String[] dataNull = null;
         if(data == dataNull){
-            DataTEST = new String[]{"test1,savesettings", "test ligne 2", "test ligne 3", "test ligne 4", "test ligne 5"};
+            DataTEST = new String[]{"test1,savesettings", "test ligne 2", "test ligne 3"};
             data = DataTEST;
         }
 
@@ -561,8 +525,6 @@ public class MainActivity extends AppCompatActivity {
     public void InitSaveSettingsInFileByte(byte[] data)
     {
         Byte[] dataNull = null;
-
-
         FileOutputStream fos = null;
         try
         {
@@ -620,27 +582,3 @@ public class MainActivity extends AppCompatActivity {
 //        return array;
     }
 }
-
-
-/*
- +        0 = 0xAA
- +        1 = 0x55
- +        2 = 0xAA
- +        3 = 0x55
- +        4 = 0xBA
- +        5 = 0x65
- +        6 = 0xBA
- +        7 = 0x65
- +        8 = 2
- +        9 = 0
- +        10 = 0
- +        11 = 0
- +        12 = 0
- +        13 = 0
- +        14 = -92
- +        15 = 0
- +        16 = 6
- +        17 = 0
- +        18 = 4
- +        19 = 0
- +        20 = 0*/
