@@ -206,26 +206,24 @@ public class MainActivity extends AppCompatActivity {
                     //Remplissage avec les valeurs du message recu
                     resultat = message.array();
                     //Creation du Tableau de string
-                    String[] newtabB = new String[16];
+                    String[] T_Transport = new String[16];
+                    String[] DonneeTabPropre = new String[164];
 
                     //Remplissage du tableau de string avec les valeurs en Hexa de resultat
                     for (int i=0;i<16;i++){
-                        newtabB[i]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+                        T_Transport[i]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
                     }
                     //Inversion des données du tableau selon methode spécial Header
-                    newtabB = InverseData(newtabB);
+                    T_Transport = InverseData(T_Transport);
 
                     //Vérification du header, afin d'etre sur de son intégrité
-                    if(VerifIntegriteHeader(newtabB)){
+                    if(VerifIntegriteHeader(T_Transport)){
                         //Header OK
-                        DevinTypeMessage(newtabB);
-
-                        String[] DonneesTab = new String[164];
-                        for (int i=0;i<164;i++){
-                            DonneesTab[i] = String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+                        DevinTypeMessage(T_Transport);
+                        for (int i=0;i<16;i++){
+                            DonneeTabPropre[i] = T_Transport[i];
                         }
-
-                        String[] DonneeTabPropre = InverseMessageT_Transp(resultat,DonneesTab);
+                        DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre);
 
                         InitSaveSettingsInFile(DonneeTabPropre);
                     }
@@ -252,12 +250,7 @@ public class MainActivity extends AppCompatActivity {
 
     public String[] InverseMessageT_Transp(byte[] DonneeByte, String[] DonneeString){
         int j = 16;
-        String[] Tab2o = new String[2];
-        String[] Tab4o = new String[4];
-        for (int i=0;i<16;i++) {
-            DecoupeInverseData2(DonneeByte, DonneeString, j);
-            j=j+2;
-        }
+
         for (int i=0;i<20;i++) {
             DecoupeInverseData2(DonneeByte, DonneeString, j);
               j=j+2;
@@ -282,21 +275,24 @@ public class MainActivity extends AppCompatActivity {
             DonneeString[j] = String.format(Integer.toHexString(DonneeByte[j] & 0xFF)).replace(' ', '0');
             j++;
         }
+        for (int i=0;i<3;i++){
         DecoupeInverseData2(DonneeByte, DonneeString, j);
               j=j+2;
+        }
+        for (int i=0;i<2;i++){
+            DecoupeInverseData4(DonneeByte,DonneeString,j);
+            j=j+4;
+        }
         for (int i=0;i<6;i++) {
             DecoupeInverseData2(DonneeByte, DonneeString, j);
               j=j+2;
         }
+        for (int i=0;i<12;i++){
+            DecoupeInverseData4(DonneeByte,DonneeString,j);
+            j=j+4;
+        }
 
-        for (int i=16;i<17;i++){
-            Tab2o[i]= String.format(Integer.toHexString(DonneeByte[i] & 0xFF)).replace(' ', '0');
-        }
-        Tab2o = InverseData(Tab2o);
-        for (int i=16;i<17;i++){
-            DonneeString[i] = Tab2o[j];
-            j++;
-        }
+
         return DonneeString;
     }
 
