@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settings.csv");
+    public File fileLecture = new File(root + "/settingsSavePropre.csv");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener Save = new OnClickListener() {
         @Override
         public void onClick(View v) {
+           String[] test =  Load();
             Toast.makeText(getApplicationContext(),"Données savegardées",
                     Toast.LENGTH_SHORT).show();
         }
@@ -416,8 +418,6 @@ public class MainActivity extends AppCompatActivity {
                 TabHeader = "ERROR DEFAULT";
                 break;
         }
-
-
         return TabHeader;
     }
 
@@ -426,21 +426,15 @@ public class MainActivity extends AppCompatActivity {
 
         switch(Tab.length){
             case 2 :
-
                 Tab_Inverse[0] = Tab[1];
                 Tab_Inverse[1] = Tab[0];
-
                 break;
-
             case 4 :
-
                 Tab_Inverse[0] = Tab[3];
                 Tab_Inverse[1] = Tab[2];
                 Tab_Inverse[2] = Tab[1];
                 Tab_Inverse[3] = Tab[0];
-
                 break;
-
             //T_Transport
             case 16 :
                 //Header1
@@ -465,7 +459,6 @@ public class MainActivity extends AppCompatActivity {
                 //Nombre_Doctets
                 Tab_Inverse[14] = Tab[15];
                 Tab_Inverse[15] = Tab[14];
-
                 break;
             default :
                 break;
@@ -544,13 +537,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void Load()
+    public String[] Load()
     {
-        String[] datatab = new String[]{"test1,AutoLoad", "test ligne 2", "test ligne 3", "test ligne 4", "test ligne 5"};
         FileInputStream fis = null;
         try
         {
-            fis = new FileInputStream(file);
+            fis = new FileInputStream(fileLecture);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -559,7 +551,7 @@ public class MainActivity extends AppCompatActivity {
         BufferedReader br = new BufferedReader(isr);
 
         int nbr_lignes=0;
-        String[] array = new String[5];
+        String[] array = new String[164];
         String line;
         int i = 0;
         try
@@ -580,6 +572,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), ligneTab,
                     Toast.LENGTH_SHORT).show();
         }
-//        return array;
+        return array;
     }
 }
