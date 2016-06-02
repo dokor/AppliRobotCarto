@@ -235,9 +235,9 @@ public class MainActivity extends AppCompatActivity {
                         //Header OK
                         DevinTypeMessage(T_Transport);
                         DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre);
-                        DonneeTabPropre[30]="e803";
-                        DonneeTabPropre[6]="0700";
-                        DonneeTabPropre[2]="0200";
+//                        DonneeTabPropre[30]="0000";
+//                        DonneeTabPropre[6]="0700";
+//                        DonneeTabPropre[2]="0200";
                         InitSaveSettingsInFile(DonneeTabPropre);
 
                         String[] test =  Load();
@@ -261,7 +261,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                     message.clear();
                 }
-
                 public void connectionClosed() {
                 }
                 public void updateBatteryLvl() {
