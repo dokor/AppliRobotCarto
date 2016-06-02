@@ -133,8 +133,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
     private OnClickListener MontrerInfo = new OnClickListener() {
@@ -147,14 +145,12 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener AllumerPhares = new OnClickListener() {
         @Override
         public void onClick(View v) {
-
             Log.i("Test", "" + Short.toString(reglages.getPhare_Luminosite()));
             Log.i("Test", "" + reglages.getPhare_Luminosite());
         }
     };
 
     private OnClickListener ConnexionRobot = new OnClickListener() {
-
         @Override
         public void onClick(View v) {
             Log.i("Debug", "Connexion");
@@ -325,7 +321,6 @@ public class MainActivity extends AppCompatActivity {
         Tab2o_inverse = InverseData(Tab2o_inverse);
         Mot2o = Tab2o_inverse[0].concat(Tab2o_inverse[1]);
         Donnees[k]=Mot2o;
-
         return Tab2o_inverse;
     }
 
@@ -350,14 +345,9 @@ public class MainActivity extends AppCompatActivity {
         String Header1 = ConcateneGroupe(TabAAnalyser, 0,3);
         String Header2 = ConcateneGroupe(TabAAnalyser, 4,7);
         if(Header1.equals(HeaderAttendu1)){
-            if(Header2.equals(HeaderAttendu2)){
-                //Intégrité OK
-                return true;
-            }
-            else {
-                //Intégrité BAD ou BUG
-                return false;
-            }
+            //Intégrité OK
+//Intégrité BAD ou BUG
+            return Header2.equals(HeaderAttendu2);
         }
         else{
             //Intégrité BAD ou BUG
