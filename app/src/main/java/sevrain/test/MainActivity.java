@@ -177,8 +177,23 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
            String[] test =  Load();
-            Toast.makeText(getApplicationContext(),"Données savegardées",
-                    Toast.LENGTH_SHORT).show();
+            byte[] Tab_Envoi = new byte[164];
+            int j=0;
+
+/*            Toast.makeText(getApplicationContext(),"Données savegardées",
+                    Toast.LENGTH_SHORT).show();*/
+            for (int i=0;i<64;i++){
+                byte[] test1 = new byte[fromHexString(test[i]).length];
+                test1 = fromHexString(test[i]);
+                System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+                j = j+test1.length;
+
+            }
+            try {
+                mTcpClient.sendMessage(Tab_Envoi);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     };
 
@@ -220,8 +235,29 @@ public class MainActivity extends AppCompatActivity {
                         //Header OK
                         DevinTypeMessage(T_Transport);
                         DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre);
-
+                        DonneeTabPropre[30]="e803";
+                        DonneeTabPropre[6]="0700";
+                        DonneeTabPropre[2]="0200";
                         InitSaveSettingsInFile(DonneeTabPropre);
+
+                        String[] test =  Load();
+                        byte[] Tab_Envoi = new byte[164];
+                        int j=0;
+
+/*            Toast.makeText(getApplicationContext(),"Données savegardées",
+                    Toast.LENGTH_SHORT).show();*/
+                        for (int i=0;i<64;i++){
+                            byte[] test1 = new byte[fromHexString(test[i]).length];
+                            test1 = fromHexString(test[i]);
+                            System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+                            j = j+test1.length;
+
+                        }
+                        try {
+                            mTcpClient.sendMessage(Tab_Envoi);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                     message.clear();
                 }
@@ -240,6 +276,21 @@ public class MainActivity extends AppCompatActivity {
             super.onProgressUpdate();
             //    Log.i("onProgressUpdate","" + values);
         }
+    }
+
+    private static byte[] fromHexString(final String encoded) {
+
+        if ((encoded.length() % 2) != 0)
+            throw new IllegalArgumentException("Input string must contain an even number of characters");
+
+        final byte[] result = new byte[encoded.length()/2];
+        final char enc[] = encoded.toCharArray();
+        for (int i = 0; i < enc.length; i += 2) {
+            StringBuilder curr = new StringBuilder(2);
+            curr.append(enc[i]).append(enc[i + 1]);
+            result[i/2] = (byte) Integer.parseInt(curr.toString(), 16);
+        }
+        return result;
     }
 
     public String[] InverseMessageT_Transp(byte[] DonneeByte, String[] DonneeString){
@@ -273,6 +324,9 @@ public class MainActivity extends AppCompatActivity {
         }
         for (int i=0;i<2;i++){
             DonneeString[k] = String.format(Integer.toHexString(DonneeByte[j] & 0xFF)).replace(' ', '0');
+            if(DonneeString[k].length() == 1) {
+                DonneeString[k] = "0".concat(DonneeString[k]);
+            }
             j++;
             k++;
         }
@@ -283,6 +337,9 @@ public class MainActivity extends AppCompatActivity {
         }
         for (int i=0;i<2;i++){
             DonneeString[k] = String.format(Integer.toHexString(DonneeByte[j] & 0xFF)).replace(' ', '0');
+            if(DonneeString[k].length() == 1) {
+                DonneeString[k] = "0".concat(DonneeString[k]);
+            }
             j++;
             k++;
         }
@@ -316,6 +373,9 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i=Indice; i<=Indice+1; i++){
             Tab2o_inverse[j]= String.format(Integer.toHexString(DonneeByte[i] & 0xFF)).replace(' ', '0');
+            if(Tab2o_inverse[j].length() == 1) {
+                Tab2o_inverse[j] = "0".concat(Tab2o_inverse[j]);
+            }
             j++;
         }
         Tab2o_inverse = InverseData(Tab2o_inverse);
@@ -331,6 +391,9 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i=Indice; i<=Indice+3; i++){
             Tab4o_inverse[j]= String.format(Integer.toHexString(DonneeByte[i] & 0xFF)).replace(' ', '0');
+            if(Tab4o_inverse[j].length() == 1) {
+                Tab4o_inverse[j] = "0".concat(Tab4o_inverse[j]);
+            }
             j++;
         }
         Tab4o_inverse = InverseData(Tab4o_inverse);
@@ -345,9 +408,14 @@ public class MainActivity extends AppCompatActivity {
         String Header1 = ConcateneGroupe(TabAAnalyser, 0,3);
         String Header2 = ConcateneGroupe(TabAAnalyser, 4,7);
         if(Header1.equals(HeaderAttendu1)){
-            //Intégrité OK
-//Intégrité BAD ou BUG
-            return Header2.equals(HeaderAttendu2);
+            if(Header2.equals(HeaderAttendu2)){
+                //Intégrité OK
+                return true;
+            }
+            else {
+                //Intégrité BAD ou BUG
+                return false;
+            }
         }
         else{
             //Intégrité BAD ou BUG
@@ -560,8 +628,8 @@ public class MainActivity extends AppCompatActivity {
 
         for (String ligneTab : array)
         {
-            Toast.makeText(getApplicationContext(), ligneTab,
-                    Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), ligneTab,
+//                    Toast.LENGTH_SHORT).show();
         }
         return array;
     }
