@@ -52,8 +52,7 @@ public class MainActivity extends AppCompatActivity {
     EditText textmsg;
 
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
-    public File file = new File(root + "/settings.csv");
-    public File fileLecture = new File(root + "/settingsSavePropre.csv");
+    public File file = new File(root + "/settingsDEV.csv");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,7 +127,9 @@ public class MainActivity extends AppCompatActivity {
             root.mkdirs(); // this will create folder.
         }
         try {
-            FileWriter writer = new FileWriter(file);
+            if(!file.exists()) {
+                FileWriter writer = new FileWriter(file);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -542,7 +543,7 @@ public class MainActivity extends AppCompatActivity {
         FileInputStream fis = null;
         try
         {
-            fis = new FileInputStream(fileLecture);
+            fis = new FileInputStream(file);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
