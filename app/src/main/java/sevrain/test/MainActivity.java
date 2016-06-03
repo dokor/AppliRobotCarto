@@ -1,44 +1,29 @@
 package sevrain.test;
 
 import android.app.Dialog;
-import android.content.Context;
-import android.content.res.AssetManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewDebug;
 import android.widget.Button;
 import android.widget.TextView;
 import android.view.MotionEvent;
 import android.view.View.OnTouchListener;
 import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
-
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.text.DecimalFormat;
-
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private final static int ID_DIALOG = 0;
@@ -48,9 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private JoyStickClass js;
     private TcpClient mTcpClient;
     private Reglages reglages;
-
-    EditText textmsg;
-
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
 
@@ -154,8 +136,6 @@ public class MainActivity extends AppCompatActivity {
             test[39] = "01";
             test[40] = "01";
 
-/*            Toast.makeText(getApplicationContext(),"Données savegardées",
-                    Toast.LENGTH_SHORT).show();*/
             for (int i=0;i<64;i++){
                 byte[] test1 = new byte[fromHexString(test[i]).length];
                 test1 = fromHexString(test[i]);
@@ -179,10 +159,8 @@ public class MainActivity extends AppCompatActivity {
             String[] test =  Load();
             byte[] Tab_Envoi = new byte[164];
             int j=0;
-                test[30] = "e803";
+            test[30] = "e803";
 
-/*            Toast.makeText(getApplicationContext(),"Données savegardées",
-                    Toast.LENGTH_SHORT).show();*/
             for (int i=0;i<64;i++){
                 byte[] test1 = new byte[fromHexString(test[i]).length];
                 test1 = fromHexString(test[i]);
@@ -190,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
                 j = j+test1.length;
 
             }
-
             try {
 
                 mTcpClient.sendMessage(Tab_Envoi);
@@ -200,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
-
 
     private OnClickListener ConnexionRobot = new OnClickListener() {
         @Override
@@ -233,16 +209,12 @@ public class MainActivity extends AppCompatActivity {
             int j=0;
             test[30] = "0000";
 
-/*            Toast.makeText(getApplicationContext(),"Données savegardées",
-                    Toast.LENGTH_SHORT).show();*/
             for (int i=0;i<64;i++){
                 byte[] test1 = new byte[fromHexString(test[i]).length];
                 test1 = fromHexString(test[i]);
                 System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
                 j = j+test1.length;
-
             }
-
             try {
 
                 mTcpClient.sendMessage(Tab_Envoi);
@@ -292,18 +264,12 @@ public class MainActivity extends AppCompatActivity {
                         //Header OK
                         DevinTypeMessage(T_Transport);
                         DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre);
-//                        DonneeTabPropre[30]="0000";
-//                        DonneeTabPropre[6]="0700";
-//                        DonneeTabPropre[2]="0200";
                         InitSaveSettingsInFile(DonneeTabPropre);
                         Log.i("Debug","MAJ");
-
                         String[] test =  Load();
                         byte[] Tab_Envoi = new byte[164];
                         int j=0;
 
-/*            Toast.makeText(getApplicationContext(),"Données savegardées",
-                    Toast.LENGTH_SHORT).show();*/
                         for (int i=0;i<64;i++){
                             byte[] test1 = new byte[fromHexString(test[i]).length];
                             test1 = fromHexString(test[i]);
@@ -311,14 +277,8 @@ public class MainActivity extends AppCompatActivity {
                             j = j+test1.length;
 
                         }
-                        /*try {
-                            mTcpClient.sendMessage(Tab_Envoi);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }*/
-
                     }
-                    message.clear();
+//                    message.clear();
                 }
                 public void connectionClosed() {
                 }
@@ -436,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
             }
             j++;
         }
-//        Tab2o_inverse = InverseData(Tab2o_inverse);
+
         Mot2o = Tab2o_inverse[0].concat(Tab2o_inverse[1]);
         Donnees[k]=Mot2o;
         return Tab2o_inverse;
@@ -454,7 +414,6 @@ public class MainActivity extends AppCompatActivity {
             }
             j++;
         }
-//        Tab4o_inverse = InverseData(Tab4o_inverse);
         Mot4o = Tab4o_inverse[0].concat(Tab4o_inverse[1]).concat(Tab4o_inverse[2]).concat(Tab4o_inverse[3]);
         Donnees[k]= Mot4o;
 
@@ -651,7 +610,6 @@ public class MainActivity extends AppCompatActivity {
             fos.close();
         }
         catch (IOException e) {e.printStackTrace();}
-
     }
 
     public String[] Load()
@@ -668,7 +626,7 @@ public class MainActivity extends AppCompatActivity {
         BufferedReader br = new BufferedReader(isr);
 
         int nbr_lignes=0;
-        String[] array = new String[164];
+        String[] array = new String[64];
         String line;
         int i = 0;
         try
