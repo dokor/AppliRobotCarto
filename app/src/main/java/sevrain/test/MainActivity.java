@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private final static int ID_DIALOG = 0;
     private RelativeLayout layout_joystick;
     private TextView PosX, PosY, Vitesse, PosAng;
-    private Button Phares, Info, Connexion, Deconnexion, Savebtn, Loadbtn;
+    private Button Phares, Info, Connexion, Deconnexion, Savebtn, Start,Loadbtn;
     private JoyStickClass js;
     private TcpClient mTcpClient;
     private Reglages reglages;
@@ -64,11 +64,13 @@ public class MainActivity extends AppCompatActivity {
         PosX = (TextView) findViewById(R.id.PosX);
         PosY = (TextView) findViewById(R.id.PosY);
         Phares = (Button) findViewById(R.id.Phares);
+        Start = (Button) findViewById(R.id.Start);
         Info = (Button) findViewById(R.id.Info);
 
         Connexion = (Button) findViewById(R.id.Connexion);
         Deconnexion = (Button) findViewById(R.id.Deconnexion);
 
+        Start.setOnClickListener(StartonOff);
         Phares.setOnClickListener(AllumerPhares);
         Info.setOnClickListener(MontrerInfo);
         Connexion.setOnClickListener(ConnexionRobot);
@@ -123,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         Savebtn = (Button) findViewById(R.id.LoadFichier);
         Savebtn.setOnClickListener(Save);
 
+
         if (!root.exists()) {
             root.mkdirs(); // this will create folder.
         }
@@ -142,13 +145,62 @@ public class MainActivity extends AppCompatActivity {
             //Montrer Info
         }
     };
+    private OnClickListener StartonOff = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String[] test =  Load();
+            byte[] Tab_Envoi = new byte[164];
+            int j=0;
+            test[39] = "01";
+            test[40] = "01";
+
+/*            Toast.makeText(getApplicationContext(),"Données savegardées",
+                    Toast.LENGTH_SHORT).show();*/
+            for (int i=0;i<64;i++){
+                byte[] test1 = new byte[fromHexString(test[i]).length];
+                test1 = fromHexString(test[i]);
+                System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+                j = j+test1.length;
+
+            }
+
+            try {
+
+                mTcpClient.sendMessage(Tab_Envoi);
+                Log.i("Debug","Envoi");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    };
     private OnClickListener AllumerPhares = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.i("Test", "" + Short.toString(reglages.getPhare_Luminosite()));
-            Log.i("Test", "" + reglages.getPhare_Luminosite());
+            String[] test =  Load();
+            byte[] Tab_Envoi = new byte[164];
+            int j=0;
+                test[30] = "e803";
+
+/*            Toast.makeText(getApplicationContext(),"Données savegardées",
+                    Toast.LENGTH_SHORT).show();*/
+            for (int i=0;i<64;i++){
+                byte[] test1 = new byte[fromHexString(test[i]).length];
+                test1 = fromHexString(test[i]);
+                System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+                j = j+test1.length;
+
+            }
+
+            try {
+
+                mTcpClient.sendMessage(Tab_Envoi);
+                Log.i("Debug","Envoi");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     };
+
 
     private OnClickListener ConnexionRobot = new OnClickListener() {
         @Override
@@ -179,6 +231,7 @@ public class MainActivity extends AppCompatActivity {
            String[] test =  Load();
             byte[] Tab_Envoi = new byte[164];
             int j=0;
+            test[30] = "0000";
 
 /*            Toast.makeText(getApplicationContext(),"Données savegardées",
                     Toast.LENGTH_SHORT).show();*/
@@ -189,8 +242,11 @@ public class MainActivity extends AppCompatActivity {
                 j = j+test1.length;
 
             }
+
             try {
+
                 mTcpClient.sendMessage(Tab_Envoi);
+                Log.i("Debug","Envoi");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -211,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected TcpClient doInBackground(Void... params) {
             //we create a TCPClient object and
+            Log.i("Debug","doInBackGround");
             mTcpClient = new TcpClient(new TcpClient.OnMessageReceived() {
                 @Override
                 //here the messageReceived method is implemented
@@ -239,6 +296,7 @@ public class MainActivity extends AppCompatActivity {
 //                        DonneeTabPropre[6]="0700";
 //                        DonneeTabPropre[2]="0200";
                         InitSaveSettingsInFile(DonneeTabPropre);
+                        Log.i("Debug","MAJ");
 
                         String[] test =  Load();
                         byte[] Tab_Envoi = new byte[164];
@@ -253,11 +311,12 @@ public class MainActivity extends AppCompatActivity {
                             j = j+test1.length;
 
                         }
-                        try {
+                        /*try {
                             mTcpClient.sendMessage(Tab_Envoi);
                         } catch (IOException e) {
                             e.printStackTrace();
-                        }
+                        }*/
+
                     }
                     message.clear();
                 }
@@ -377,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
             }
             j++;
         }
-        Tab2o_inverse = InverseData(Tab2o_inverse);
+//        Tab2o_inverse = InverseData(Tab2o_inverse);
         Mot2o = Tab2o_inverse[0].concat(Tab2o_inverse[1]);
         Donnees[k]=Mot2o;
         return Tab2o_inverse;
@@ -395,7 +454,7 @@ public class MainActivity extends AppCompatActivity {
             }
             j++;
         }
-        Tab4o_inverse = InverseData(Tab4o_inverse);
+//        Tab4o_inverse = InverseData(Tab4o_inverse);
         Mot4o = Tab4o_inverse[0].concat(Tab4o_inverse[1]).concat(Tab4o_inverse[2]).concat(Tab4o_inverse[3]);
         Donnees[k]= Mot4o;
 
