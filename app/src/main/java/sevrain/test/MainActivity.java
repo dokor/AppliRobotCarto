@@ -141,40 +141,15 @@ public class MainActivity extends AppCompatActivity {
                 test1 = fromHexString(test[i]);
                 System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
                 j = j+test1.length;
-
             }
-
-            try {
-
-                mTcpClient.sendMessage(Tab_Envoi);
-                Log.i("Debug","Envoi");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            SendMessage(Tab_Envoi);
         }
     };
+
     private OnClickListener AllumerPhares = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            String[] test =  Load();
-            byte[] Tab_Envoi = new byte[164];
-            int j=0;
-            test[30] = "e803";
-
-            for (int i=0;i<64;i++){
-                byte[] test1 = new byte[fromHexString(test[i]).length];
-                test1 = fromHexString(test[i]);
-                System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
-                j = j+test1.length;
-
-            }
-            try {
-
-                mTcpClient.sendMessage(Tab_Envoi);
-                Log.i("Debug","Envoi");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            SendMessage(ModifParametrePrecis("e803", 30));
         }
     };
 
@@ -187,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
             if(mTcpClient.mRun != true){
                 mTcpClient.stopClient();
             }*/
-
         }
     };
 
@@ -204,24 +178,7 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener Save = new OnClickListener() {
         @Override
         public void onClick(View v) {
-           String[] test =  Load();
-            byte[] Tab_Envoi = new byte[164];
-            int j=0;
-            test[30] = "0000";
-
-            for (int i=0;i<64;i++){
-                byte[] test1 = new byte[fromHexString(test[i]).length];
-                test1 = fromHexString(test[i]);
-                System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
-                j = j+test1.length;
-            }
-            try {
-
-                mTcpClient.sendMessage(Tab_Envoi);
-                Log.i("Debug","Envoi");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            SendMessage(ModifParametrePrecis("0000", 30));
         }
     };
 
@@ -293,6 +250,28 @@ public class MainActivity extends AppCompatActivity {
         protected void onProgressUpdate(ByteBuffer... values) {
             super.onProgressUpdate();
             //    Log.i("onProgressUpdate","" + values);
+        }
+    }
+
+    private byte[] ModifParametrePrecis(String valeur, Integer index){
+        String[] test =  Load();
+        byte[] Tab_Envoi = new byte[164];
+        int j=0;
+        test[index] = valeur;
+        for (int i=0;i<64;i++){
+            byte[] test1 = new byte[fromHexString(test[i]).length];
+            test1 = fromHexString(test[i]);
+            System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+            j = j+test1.length;
+        }
+        return Tab_Envoi;
+    }
+    private void SendMessage(byte[] tabBEnvoi){
+        try {
+            mTcpClient.sendMessage(tabBEnvoi);
+            Log.i("Debug","Envoi");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -548,15 +527,13 @@ public class MainActivity extends AppCompatActivity {
         try
         {
             printStream.print(ligneAEcrire);
-//          fos.write(ligneAEcrire.getBytes(Charset.forName("ISO-8859-1")));
-            //fos.write(ligneAEcrire.getBytes());
             fos.write("\n".getBytes());
         }
         catch (IOException e) {e.printStackTrace();
             printStream.close();
         }
     }
-    
+
     public void InitSaveSettingsInFile(String[] data)
     {
         String[] DataTEST;

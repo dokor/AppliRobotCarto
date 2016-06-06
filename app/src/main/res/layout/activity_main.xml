@@ -100,7 +100,7 @@
             android:id="@+id/LoadFichier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Write Text into File"
+            android:text="Write"
             android:onClick="Save"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"/>
