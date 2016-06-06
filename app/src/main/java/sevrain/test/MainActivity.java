@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import android.widget.EditText;
 
+
+
 public class MainActivity extends AppCompatActivity {
     private final static int ID_DIALOG = 0;
     private RelativeLayout layout_joystick;
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private Reglages reglages;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
