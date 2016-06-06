@@ -556,16 +556,7 @@ public class MainActivity extends AppCompatActivity {
             printStream.close();
         }
     }
-    public void SaveSettingsInFileUNITByte(byte ligneAEcrire, FileOutputStream  fos)
-    {
-        try
-        {
-            fos.write(ligneAEcrire);
-            fos.write("\n".getBytes());
-        }
-        catch (IOException e) {e.printStackTrace();}
-    }
-
+    
     public void InitSaveSettingsInFile(String[] data)
     {
         String[] DataTEST;
@@ -591,25 +582,6 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (IOException e) {e.printStackTrace();}
 
-    }
-    public void InitSaveSettingsInFileByte(byte[] data)
-    {
-        Byte[] dataNull = null;
-        FileOutputStream fos = null;
-        try
-        {
-            fos = new FileOutputStream(file);
-        }
-        catch (FileNotFoundException e){e.printStackTrace();}
-
-        for (Byte ligneTab : data) {
-            SaveSettingsInFileUNITByte(ligneTab, fos); //Ecriture de chaque ligne dans le fichier settings
-        }
-        try
-        {
-            fos.close();
-        }
-        catch (IOException e) {e.printStackTrace();}
     }
 
     public String[] Load()
@@ -641,12 +613,6 @@ public class MainActivity extends AppCompatActivity {
             isr.close();
         }
         catch (IOException e) {e.printStackTrace();}
-
-        for (String ligneTab : array)
-        {
-//            Toast.makeText(getApplicationContext(), ligneTab,
-//                    Toast.LENGTH_SHORT).show();
-        }
         return array;
     }
 }
