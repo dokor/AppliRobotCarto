@@ -1,6 +1,7 @@
 package sevrain.test;
 
 import android.app.Dialog;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -156,12 +157,19 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener ConnexionRobot = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.i("Debug", "Connexion");
-            new ConnectTask().execute();
-            /*
-            if(mTcpClient.mRun != true){
-                mTcpClient.stopClient();
-            }*/
+            if(mTcpClient.mRun != true) {
+                Log.i("Debug", "Connexion");
+                new ConnectTask().execute();
+                Connexion.setBackgroundColor(Color.GREEN);
+            }
+            else if (mTcpClient.mRun == true) {
+                Log.i("Debug", "Connexion");
+                if (TcpClient.mRun) {
+                    mTcpClient.stopClient();
+                    reglages = null;
+                }
+                Connexion.setBackgroundColor(Color.RED);
+            }
         }
     };
 
@@ -478,7 +486,6 @@ public class MainActivity extends AppCompatActivity {
 
     public String[] InverseData(String[] Tab){
         String[] Tab_Inverse = new String[Tab.length];
-
         switch(Tab.length){
             case 2 :
                 Tab_Inverse[0] = Tab[1];
