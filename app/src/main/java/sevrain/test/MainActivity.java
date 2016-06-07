@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +25,9 @@ import java.nio.ByteBuffer;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.widget.EditText;
 
 
@@ -162,17 +166,17 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             if(mTcpClient.mRun != true) {
                 Log.i("Debug", "Connexion");
-                new ConnectTask().execute();
-                Connexion.setBackgroundColor(Color.GREEN);
+               startBackgroundPerform();
+//                Connexion.setBackgroundColor(Color.GREEN);
             }
-            else if (mTcpClient.mRun == true) {
+            /*else if (mTcpClient.mRun == true) {
                 Log.i("Debug", "Connexion");
                 if (TcpClient.mRun) {
                     mTcpClient.stopClient();
                     reglages = null;
                 }
                 Connexion.setBackgroundColor(Color.RED);
-            }
+            }*/
         }
     };
 
@@ -200,6 +204,30 @@ public class MainActivity extends AppCompatActivity {
         box.setContentView(R.layout.dialog);
         box.setTitle("Informations");
         return box;
+    }
+
+
+    public void startBackgroundPerform() {
+        Timer timerAsync;
+        TimerTask timerTaskAsync;
+        final Handler handler = new Handler();
+        timerAsync = new Timer();
+        timerTaskAsync = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run() {
+                        try {
+                            ConnectTask performBackgroundTask = new ConnectTask();
+                            performBackgroundTask.execute();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        };
+        timerAsync.schedule(timerTaskAsync, 0, 1000);
     }
 
     //Class pour connexion tcp
