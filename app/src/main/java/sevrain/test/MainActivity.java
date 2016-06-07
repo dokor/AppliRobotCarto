@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,8 +30,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.widget.EditText;
-
-
 
 public class MainActivity extends AppCompatActivity {
     private final static int ID_DIALOG = 0;
@@ -42,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     private Reglages reglages;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
             for (int i=0;i<64;i++){
                 byte[] test1 = new byte[fromHexString(test[i]).length];
-                test1 = fromHexString(test[i]);
+                test1 = fromBinaryString(test[i]);
                 System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
                 j = j+test1.length;
             }
@@ -157,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener AllumerPhares = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            SendMessage(ModifParametrePrecis("e803", 30));
+            SendMessage(ModifParametrePrecis("1110001100001000", 30));
         }
     };
 
@@ -166,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             if(mTcpClient.mRun != true) {
                 Log.i("Debug", "Connexion");
-               startBackgroundPerform();
+                new ConnectTask().execute();
 //                Connexion.setBackgroundColor(Color.GREEN);
             }
             /*else if (mTcpClient.mRun == true) {
@@ -262,17 +260,7 @@ public class MainActivity extends AppCompatActivity {
                         DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre);
                         InitSaveSettingsInFile(DonneeTabPropre);
                         Log.i("Debug","MAJ");
-                        String[] test =  Load();
-                        byte[] Tab_Envoi = new byte[164];
-                        int j=0;
 
-                        for (int i=0;i<64;i++){
-                            byte[] test1 = new byte[fromHexString(test[i]).length];
-                            test1 = fromHexString(test[i]);
-                            System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
-                            j = j+test1.length;
-
-                        }
                     }
 //                    message.clear();
                 }
@@ -298,8 +286,8 @@ public class MainActivity extends AppCompatActivity {
         int j=0;
         test[index] = valeur;
         for (int i=0;i<64;i++){
-            byte[] test1 = new byte[fromHexString(test[i]).length];
-            test1 = fromHexString(test[i]);
+            byte[] test1;
+            test1 = fromBinaryString(test[i]);
             System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
             j = j+test1.length;
         }
@@ -312,6 +300,66 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    private static byte[] fromBinaryString (final String s) {
+        if (s.length() == 32){
+            byte[] b2 = new byte[4];
+            byte[] b = new BigInteger(s,2).toByteArray();
+            if (b.length==b2.length){
+                return b;
+            }
+            else if(b.length==1){
+                return b2;
+            }
+            else if (b.length == 3){
+                b2[0] = b[0];
+                b2[1] = b[0];
+                b2[2] = b[1];
+                b2[3] = b[2];
+                return b2;
+            }
+            else if (b.length == 2){
+                b2[0] = b[0];
+                b2[1] = b[0];
+                b2[2] = b[0];
+                b2[3] = b[1];
+                return b2;
+            }
+            else {
+                b2[0] = b[1];
+                b2[1] = b[2];
+                b2[2] = b[3];
+                b2[3] = b[4];
+                return b2;
+            }
+        }
+        else if (s.length() == 16){
+            byte[] b2 = new byte[2];
+            byte[] b = new BigInteger(s,2).toByteArray();
+            if (b.length==b2.length){
+                return b;
+            }
+            else if(b.length==1){
+                return b2;
+            }
+            else {
+                b2[0] = b[1];
+                b2[1] = b[2];
+                return b2;
+            }
+        }
+        else if (s.length() ==8){
+            byte[] b2 = new byte[1];
+            byte[] b = new BigInteger(s,2).toByteArray();
+            if (b.length==b2.length){
+                return b;
+            }
+            else {
+                b2[0]=b[1];
+                return b2;
+            }
+        }
+        return null;
     }
 
     private static byte[] fromHexString(final String encoded) {
@@ -359,7 +407,7 @@ public class MainActivity extends AppCompatActivity {
             k++;
         }
         for (int i=0;i<2;i++){
-            DonneeString[k] = String.format(Integer.toHexString(DonneeByte[j] & 0xFF)).replace(' ', '0');
+            DonneeString[k] = String.format("%8s", Integer.toBinaryString(DonneeByte[j] & 0xFF)).replace(' ', '0');
             if(DonneeString[k].length() == 1) {
                 DonneeString[k] = "0".concat(DonneeString[k]);
             }
@@ -372,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
             k++;
         }
         for (int i=0;i<2;i++){
-            DonneeString[k] = String.format(Integer.toHexString(DonneeByte[j] & 0xFF)).replace(' ', '0');
+            DonneeString[k] = String.format("%8s", Integer.toBinaryString(DonneeByte[j] & 0xFF)).replace(' ', '0');
             if(DonneeString[k].length() == 1) {
                 DonneeString[k] = "0".concat(DonneeString[k]);
             }
@@ -408,7 +456,7 @@ public class MainActivity extends AppCompatActivity {
         int j = 0;
 
         for (int i=Indice; i<=Indice+1; i++){
-            Tab2o_inverse[j]= String.format(Integer.toHexString(DonneeByte[i] & 0xFF)).replace(' ', '0');
+            Tab2o_inverse[j]= String.format("%8s", Integer.toBinaryString(DonneeByte[i] & 0xFF)).replace(' ', '0');
             if(Tab2o_inverse[j].length() == 1) {
                 Tab2o_inverse[j] = "0".concat(Tab2o_inverse[j]);
             }
@@ -426,7 +474,7 @@ public class MainActivity extends AppCompatActivity {
         String Mot4o;
 
         for (int i=Indice; i<=Indice+3; i++){
-            Tab4o_inverse[j]= String.format(Integer.toHexString(DonneeByte[i] & 0xFF)).replace(' ', '0');
+            Tab4o_inverse[j]= String.format("%8s", Integer.toBinaryString(DonneeByte[i] & 0xFF)).replace(' ', '0');
             if(Tab4o_inverse[j].length() == 1) {
                 Tab4o_inverse[j] = "0".concat(Tab4o_inverse[j]);
             }
@@ -459,14 +507,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String ConcateneGroupe(String[] Tab, int indexDepart, int indexArriv){
-       String StringConcat;
+        String StringConcat;
         int k = indexArriv - indexDepart + 1;
         int kcompt=0;
-       String[] TabaConcatene = new String[k];
-       for(int i = indexDepart; i< indexArriv+1;i++){
-           TabaConcatene[kcompt] = Tab[i];
-           kcompt++;
-       }
+        String[] TabaConcatene = new String[k];
+        for(int i = indexDepart; i< indexArriv+1;i++){
+            TabaConcatene[kcompt] = Tab[i];
+            kcompt++;
+        }
         StringConcat =  Concatene(TabaConcatene);
         return StringConcat;
     }
