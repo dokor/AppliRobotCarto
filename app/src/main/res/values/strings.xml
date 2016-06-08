@@ -5,4 +5,12 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+    <string name="perso1">Alexandre BECUWE (CDP)</string>
+    <string name="perso2">Ifein VONGPRASEUTH</string>
+    <string name="perso3">Antoine LE LOUET</string>
+    <string name="perso4">Sevrain CHEA (Stagiaire)</string>
+    <string name="perso5">Nicolas HENRY</string>
+
+
+
 </resources>

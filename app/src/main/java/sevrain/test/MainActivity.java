@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity
         Connexion.setImageResource(R.drawable.ic_cloud_white_24dp);
         Phares.setImageResource(R.drawable.ic_visibility_off_white_24dp);
 
-
         js = new JoyStickClass(getApplicationContext()
                 , layout_joystick, R.drawable.image_button);
         js.setStickSize(75, 75);
@@ -170,7 +169,7 @@ public class MainActivity extends AppCompatActivity
         if (!root.exists()) {
              root.mkdirs(); // this will create folder.
         }
-        
+
         try {
             if(!file.exists()) {
                 FileWriter writer = new FileWriter(file);
@@ -220,15 +219,11 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_param_Robot) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_param_app) {
 
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_Contact) {
 
         }
 

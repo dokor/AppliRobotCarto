@@ -14,11 +14,18 @@
     tools:showIn="@layout/app_bar_main">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:gravity="right"
         >
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/Connexion"
+            android:layout_gravity="right"
+            android:src="@android:drawable/ic_lock_idle_low_battery"
+            android:onClick="ConnexionRobot"/>
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
@@ -30,13 +37,13 @@
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/Btn_TEST"
+        android:id="@+id/Phares"
         android:layout_gravity="right"/>
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/Phares"
+        android:id="@+id/Btn_TEST"
         android:layout_gravity="right"/>
 
     </LinearLayout>
