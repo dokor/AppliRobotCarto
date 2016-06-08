@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
         js.setOffset(90);
         js.setMinimumDistance(50);
 
+        final int[] lock = {0,0};
+
         layout_joystick.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View arg0, MotionEvent arg1) {
                 js.drawStick(arg1);
@@ -84,7 +86,13 @@ public class MainActivity extends AppCompatActivity {
 
                     int direction = js.get8Direction();
                     if (direction == JoyStickClass.STICK_UP) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000000100001101111010", 26));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_UPRIGHT) {
                         //
                     } else if (direction == JoyStickClass.STICK_RIGHT) {
@@ -92,7 +100,13 @@ public class MainActivity extends AppCompatActivity {
                     } else if (direction == JoyStickClass.STICK_DOWNRIGHT) {
                         //
                     } else if (direction == JoyStickClass.STICK_DOWN) {
-                        //
+                        if (lock[1]==0){
+                            lock[1]=1;
+                        }
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            SendMessage(ModifParametrePrecis("00000000000000000111101011000011", 26));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_DOWNLEFT) {
                         //
                     } else if (direction == JoyStickClass.STICK_LEFT) {
@@ -105,6 +119,12 @@ public class MainActivity extends AppCompatActivity {
                 } else if (arg1.getAction() == MotionEvent.ACTION_UP) {
                     PosX.setText("X:");
                     PosY.setText("Y:");
+                    if (lock[0] != 1) {
+                        SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                        Log.i("Debug","Stop");
+                        lock[0] = 0;
+                        lock[1] = 0;
+                    }
                 }
                 return true;
             }
@@ -136,26 +156,14 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener StartonOff = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            String[] test =  Load();
-            byte[] Tab_Envoi = new byte[164];
-            int j=0;
-            test[39] = "01";
-            test[40] = "01";
 
-            for (int i=0;i<64;i++){
-                byte[] test1 = new byte[fromHexString(test[i]).length];
-                test1 = fromBinaryString(test[i]);
-                System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
-                j = j+test1.length;
-            }
-            SendMessage(Tab_Envoi);
         }
     };
 
     private OnClickListener AllumerPhares = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            SendMessage(ModifParametrePrecis("1110001100001000", 30));
+            SendMessage(ModifParametrePrecis("1110001100001000",30));
         }
     };
 
@@ -163,8 +171,24 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if(mTcpClient.mRun != true) {
+                    Timer timer = new Timer();
+                    timer.scheduleAtFixedRate( new TimerTask() {
+                        public void run() {
+
+                            try{
+
+                                new ConnectTask().execute();
+
+                            }
+                            catch (Exception e) {
+                                // TODO: handle exception
+                            }
+
+                        }
+                    }, 0, 1000);
+
                 Log.i("Debug", "Connexion");
-                new ConnectTask().execute();
+                new ConnectTask().startBackgroundPerform();
 //                Connexion.setBackgroundColor(Color.GREEN);
             }
             /*else if (mTcpClient.mRun == true) {
@@ -205,31 +229,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void startBackgroundPerform() {
-        Timer timerAsync;
-        TimerTask timerTaskAsync;
-        final Handler handler = new Handler();
-        timerAsync = new Timer();
-        timerTaskAsync = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    public void run() {
-                        try {
-                            ConnectTask performBackgroundTask = new ConnectTask();
-                            performBackgroundTask.execute();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-        };
-        timerAsync.schedule(timerTaskAsync, 0, 1000);
-    }
+
 
     //Class pour connexion tcp
     public class ConnectTask extends AsyncTask<Void, ByteBuffer, TcpClient> {
+
+        public void startBackgroundPerform() {
+            Timer timerAsync;
+            TimerTask timerTaskAsync;
+            final Handler handler = new Handler();
+            timerAsync = new Timer();
+            timerTaskAsync = new TimerTask() {
+                @Override
+                public void run() {
+                    handler.post(new Runnable() {
+                        public void run() {
+                            try {
+                                ConnectTask performBackgroundTask = new ConnectTask();
+                                performBackgroundTask.execute();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }
+            };
+            timerAsync.schedule(timerTaskAsync, 0, 1000);
+        }
         @Override
         protected TcpClient doInBackground(Void... params) {
             //we create a TCPClient object and
