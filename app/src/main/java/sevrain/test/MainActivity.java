@@ -4,9 +4,15 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -26,51 +32,74 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import android.widget.EditText;
 
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.view.View;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends AppCompatActivity
+                implements NavigationView.OnNavigationItemSelectedListener {
     private final static int ID_DIALOG = 0;
     private RelativeLayout layout_joystick;
-    private TextView PosX, PosY, Vitesse, PosAng;
-    private Button Phares, Info, Connexion, Deconnexion, Savebtn, Start,Loadbtn;
+    private TextView PosX, PosY, Direction;
+    private FloatingActionButton Phares, Connexion, Btn_TEST;
     private JoyStickClass js;
     private TcpClient mTcpClient;
     private Reglages reglages;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
-
+    private int k_phare =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
         //Création du joystick + Position X/Y + Boutons
         layout_joystick = (RelativeLayout) findViewById(R.id.layout_joystick);
         PosX = (TextView) findViewById(R.id.PosX);
         PosY = (TextView) findViewById(R.id.PosY);
-        Phares = (Button) findViewById(R.id.Phares);
-        Start = (Button) findViewById(R.id.Start);
-        Info = (Button) findViewById(R.id.Info);
+        Direction = (TextView) findViewById(R.id.Direction);
 
-        Connexion = (Button) findViewById(R.id.Connexion);
-        Deconnexion = (Button) findViewById(R.id.Deconnexion);
+        Phares = (FloatingActionButton) findViewById(R.id.Phares);
+        Btn_TEST = (FloatingActionButton) findViewById(R.id.Btn_TEST);
+        Connexion = (FloatingActionButton) findViewById(R.id.Connexion);
 
-        Start.setOnClickListener(StartonOff);
+        Btn_TEST.setOnClickListener(Action_Btn_TEST);
         Phares.setOnClickListener(AllumerPhares);
-        Info.setOnClickListener(MontrerInfo);
         Connexion.setOnClickListener(ConnexionRobot);
-        Deconnexion.setOnClickListener(DeconnexionRobot);
+        Connexion.setImageResource(R.drawable.ic_cloud_white_24dp);
+//        Btn_TEST.setImageResource(R.drawable.ic_cloud_done_white_24dp);
 
 
         js = new JoyStickClass(getApplicationContext()
                 , layout_joystick, R.drawable.image_button);
-        js.setStickSize(150, 150);
-        js.setLayoutSize(500, 500);
-        js.setLayoutAlpha(150);
+        js.setStickSize(75, 75);
+        js.setLayoutSize(300, 300);
+        js.setLayoutAlpha(200);
         js.setStickAlpha(100);
-        js.setOffset(90);
-        js.setMinimumDistance(50);
+        js.setOffset(35);
+        js.setMinimumDistance(25);
 
         layout_joystick.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View arg0, MotionEvent arg1) {
@@ -79,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
                         || arg1.getAction() == MotionEvent.ACTION_MOVE) {
                     PosX.setText("X: " + String.valueOf(js.getX()));
                     PosY.setText("Y: " + String.valueOf(js.getY()));
+                    Direction.setText("Direct: " + String.valueOf(js.get8Direction()));
 
                     int direction = js.get8Direction();
                     if (direction == JoyStickClass.STICK_UP) {
@@ -103,14 +133,11 @@ public class MainActivity extends AppCompatActivity {
                 } else if (arg1.getAction() == MotionEvent.ACTION_UP) {
                     PosX.setText("X:");
                     PosY.setText("Y:");
+                    PosY.setText("Direction:");
                 }
                 return true;
             }
         });
-
-        Savebtn = (Button) findViewById(R.id.LoadFichier);
-        Savebtn.setOnClickListener(Save);
-
 
         if (!root.exists()) {
              root.mkdirs(); // this will create folder.
@@ -124,14 +151,64 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private OnClickListener MontrerInfo = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            showDialog(ID_DIALOG);
-            //Montrer Info
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
-    };
-    private OnClickListener StartonOff = new OnClickListener() {
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_camera) {
+            // Handle the camera action
+        } else if (id == R.id.nav_gallery) {
+
+        } else if (id == R.id.nav_slideshow) {
+
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    private OnClickListener Action_Btn_TEST = new OnClickListener() {
         @Override
         public void onClick(View v) {
             String[] test =  Load();
@@ -146,14 +223,26 @@ public class MainActivity extends AppCompatActivity {
                 System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
                 j = j+test1.length;
             }
-            SendMessage(Tab_Envoi);
+            if (TcpClient.mRun) {
+                SendMessage(Tab_Envoi);
+            }
         }
     };
 
     private OnClickListener AllumerPhares = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            SendMessage(ModifParametrePrecis("e803", 30));
+            if (TcpClient.mRun) {
+                if (k_phare==0){
+                    SendMessage(ModifParametrePrecis("e803", 30));
+                    k_phare=1;
+                }
+                else{
+                    SendMessage(ModifParametrePrecis("0000", 30));
+                    k_phare=0;
+                }
+
+            }
         }
     };
 
@@ -163,25 +252,16 @@ public class MainActivity extends AppCompatActivity {
             if(mTcpClient.mRun != true) {
                 Log.i("Debug", "Connexion");
                 new ConnectTask().execute();
-                Connexion.setBackgroundColor(Color.GREEN);
+                Connexion.setImageResource(R.drawable.ic_cloud_done_white_24dp);
             }
             else if (mTcpClient.mRun == true) {
                 Log.i("Debug", "Connexion");
                 if (TcpClient.mRun) {
                     mTcpClient.stopClient();
                     reglages = null;
+                    Connexion.setImageResource(R.drawable.ic_cloud_off_white_24dp);
                 }
-                Connexion.setBackgroundColor(Color.RED);
-            }
-        }
-    };
 
-    private OnClickListener DeconnexionRobot = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (TcpClient.mRun) {
-                mTcpClient.stopClient();
-                reglages = null;
             }
         }
     };
@@ -189,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener Save = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            SendMessage(ModifParametrePrecis("0000", 30));
+
         }
     };
 
