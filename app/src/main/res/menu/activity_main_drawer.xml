@@ -5,33 +5,36 @@
         <item
             android:id="@+id/nav_camera"
             android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:title="Accueil" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_param_Robot"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:title="Parametres Robot" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/nav_param_app"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Parametres App" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
-
+            android:id="@+id/nav_Contact"
+            android:icon="@drawable/ic_menu_share"
+            android:title="Contact" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="L'équipe du projet"
+          android:checkable="true">
         <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+            <item android:title="@string/perso1"
+                  android:icon="@drawable/ic_drive_eta_blue_grey_800_24dp"/>
+            <item android:title="@string/perso2"
+                  android:icon="@drawable/ic_drive_eta_blue_grey_800_24dp"/>
+            <item android:title="@string/perso3"
+                  android:icon="@drawable/ic_developer_mode_blue_grey_800_24dp"/>
+            <item android:title="@string/perso4"
+                  android:icon="@drawable/ic_developer_mode_blue_grey_800_24dp"/>
+            <item android:title="@string/perso5"
+                  android:icon="@drawable/ic_desktop_windows_blue_grey_800_24dp"/>
         </menu>
     </item>
 
 </menu>
+

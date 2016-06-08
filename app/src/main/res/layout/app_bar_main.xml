@@ -23,19 +23,6 @@
 
     <include layout="@layout/content_main" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="25dp"
-        android:layout_marginEnd="25dp"
-        android:id="@+id/Connexion"
-        android:textStyle="italic"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_menu_share"
-        android:onClick="ConnexionRobot"/>
-
-
         <RelativeLayout
             android:id="@+id/layout_joystick"
             android:layout_marginLeft="25dp"
