@@ -88,8 +88,10 @@ public class MainActivity extends AppCompatActivity
         Btn_TEST.setOnClickListener(Action_Btn_TEST);
         Phares.setOnClickListener(AllumerPhares);
         Connexion.setOnClickListener(ConnexionRobot);
+
+        Btn_TEST.setImageResource(R.drawable.ic_menu_slideshow);
         Connexion.setImageResource(R.drawable.ic_cloud_white_24dp);
-//        Btn_TEST.setImageResource(R.drawable.ic_cloud_done_white_24dp);
+        Phares.setImageResource(R.drawable.ic_visibility_off_white_24dp);
 
 
         js = new JoyStickClass(getApplicationContext()
@@ -133,7 +135,7 @@ public class MainActivity extends AppCompatActivity
                 } else if (arg1.getAction() == MotionEvent.ACTION_UP) {
                     PosX.setText("X:");
                     PosY.setText("Y:");
-                    PosY.setText("Direction:");
+                    Direction.setText("Direction:");
                 }
                 return true;
             }
@@ -235,10 +237,12 @@ public class MainActivity extends AppCompatActivity
             if (TcpClient.mRun) {
                 if (k_phare==0){
                     SendMessage(ModifParametrePrecis("e803", 30));
+                    Phares.setImageResource(R.drawable.ic_visibility_off_white_24dp);
                     k_phare=1;
                 }
                 else{
                     SendMessage(ModifParametrePrecis("0000", 30));
+                    Phares.setImageResource(R.drawable.ic_visibility_white_24dp);
                     k_phare=0;
                 }
 
