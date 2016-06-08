@@ -4,10 +4,15 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.os.Handler;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,58 +26,82 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.widget.EditText;
 
-public class MainActivity extends AppCompatActivity {
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.view.View;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+
+
+
+public class MainActivity extends AppCompatActivity
+                implements NavigationView.OnNavigationItemSelectedListener {
     private final static int ID_DIALOG = 0;
     private RelativeLayout layout_joystick;
-    private TextView PosX, PosY, Vitesse, PosAng;
-    private Button Phares, Info, Connexion, Deconnexion, Savebtn, Start,Loadbtn;
+    private TextView PosX, PosY, Direction;
+    private FloatingActionButton Phares, Connexion, Btn_TEST;
     private JoyStickClass js;
     private TcpClient mTcpClient;
     private Reglages reglages;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
+    private int k_phare =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
         //Création du joystick + Position X/Y + Boutons
         layout_joystick = (RelativeLayout) findViewById(R.id.layout_joystick);
         PosX = (TextView) findViewById(R.id.PosX);
         PosY = (TextView) findViewById(R.id.PosY);
-        Phares = (Button) findViewById(R.id.Phares);
-        Start = (Button) findViewById(R.id.Start);
-        Info = (Button) findViewById(R.id.Info);
+        Direction = (TextView) findViewById(R.id.Direction);
 
-        Connexion = (Button) findViewById(R.id.Connexion);
-        Deconnexion = (Button) findViewById(R.id.Deconnexion);
+        Phares = (FloatingActionButton) findViewById(R.id.Phares);
+        Btn_TEST = (FloatingActionButton) findViewById(R.id.Btn_TEST);
+        Connexion = (FloatingActionButton) findViewById(R.id.Connexion);
 
-        Start.setOnClickListener(StartonOff);
+        Btn_TEST.setOnClickListener(Action_Btn_TEST);
         Phares.setOnClickListener(AllumerPhares);
-        Info.setOnClickListener(MontrerInfo);
         Connexion.setOnClickListener(ConnexionRobot);
-        Deconnexion.setOnClickListener(DeconnexionRobot);
+
+        Btn_TEST.setImageResource(R.drawable.ic_menu_slideshow);
+        Connexion.setImageResource(R.drawable.ic_cloud_white_24dp);
+        Phares.setImageResource(R.drawable.ic_visibility_off_white_24dp);
 
 
         js = new JoyStickClass(getApplicationContext()
                 , layout_joystick, R.drawable.image_button);
-        js.setStickSize(150, 150);
-        js.setLayoutSize(500, 500);
-        js.setLayoutAlpha(150);
+        js.setStickSize(75, 75);
+        js.setLayoutSize(300, 300);
+        js.setLayoutAlpha(200);
         js.setStickAlpha(100);
-        js.setOffset(90);
-        js.setMinimumDistance(50);
+        js.setOffset(35);
+        js.setMinimumDistance(25);
 
         final int[] lock = {0,0};
 
@@ -83,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
                         || arg1.getAction() == MotionEvent.ACTION_MOVE) {
                     PosX.setText("X: " + String.valueOf(js.getX()));
                     PosY.setText("Y: " + String.valueOf(js.getY()));
+                    Direction.setText("Direct: " + String.valueOf(js.get8Direction()));
 
                     int direction = js.get8Direction();
                     if (direction == JoyStickClass.STICK_UP) {
@@ -119,24 +149,25 @@ public class MainActivity extends AppCompatActivity {
                 } else if (arg1.getAction() == MotionEvent.ACTION_UP) {
                     PosX.setText("X:");
                     PosY.setText("Y:");
+
                     if (lock[0] != 1) {
                         SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
                         Log.i("Debug","Stop");
                         lock[0] = 0;
                         lock[1] = 0;
                     }
+
+                    Direction.setText("Direction:");
+
                 }
                 return true;
             }
         });
 
-        Savebtn = (Button) findViewById(R.id.LoadFichier);
-        Savebtn.setOnClickListener(Save);
-
-
         if (!root.exists()) {
-            root.mkdirs(); // this will create folder.
+             root.mkdirs(); // this will create folder.
         }
+        
         try {
             if(!file.exists()) {
                 FileWriter writer = new FileWriter(file);
@@ -146,16 +177,82 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private OnClickListener MontrerInfo = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            showDialog(ID_DIALOG);
-            //Montrer Info
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
-    };
-    private OnClickListener StartonOff = new OnClickListener() {
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_camera) {
+            // Handle the camera action
+        } else if (id == R.id.nav_gallery) {
+
+        } else if (id == R.id.nav_slideshow) {
+
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    private OnClickListener Action_Btn_TEST = new OnClickListener() {
         @Override
         public void onClick(View v) {
+
+            String[] test =  Load();
+            byte[] Tab_Envoi = new byte[164];
+            int j=0;
+            test[39] = "01";
+            test[40] = "01";
+
+            for (int i=0;i<64;i++){
+                byte[] test1 = new byte[fromHexString(test[i]).length];
+                test1 = fromHexString(test[i]);
+                System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+                j = j+test1.length;
+            }
+            if (TcpClient.mRun) {
+                SendMessage(Tab_Envoi);
+            }
 
         }
     };
@@ -163,7 +260,23 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener AllumerPhares = new OnClickListener() {
         @Override
         public void onClick(View v) {
+
             SendMessage(ModifParametrePrecis("1110001100001000",30));
+
+            if (TcpClient.mRun) {
+                if (k_phare==0){
+                    SendMessage(ModifParametrePrecis("e803", 30));
+                    Phares.setImageResource(R.drawable.ic_visibility_off_white_24dp);
+                    k_phare=1;
+                }
+                else{
+                    SendMessage(ModifParametrePrecis("0000", 30));
+                    Phares.setImageResource(R.drawable.ic_visibility_white_24dp);
+                    k_phare=0;
+                }
+
+            }
+
         }
     };
 
@@ -188,26 +301,22 @@ public class MainActivity extends AppCompatActivity {
                     }, 0, 1000);
 
                 Log.i("Debug", "Connexion");
+
                 new ConnectTask().startBackgroundPerform();
 //                Connexion.setBackgroundColor(Color.GREEN);
+
+                new ConnectTask().execute();
+                Connexion.setImageResource(R.drawable.ic_cloud_done_white_24dp);
+
             }
-            /*else if (mTcpClient.mRun == true) {
+            else if (mTcpClient.mRun == true) {
                 Log.i("Debug", "Connexion");
                 if (TcpClient.mRun) {
                     mTcpClient.stopClient();
                     reglages = null;
+                    Connexion.setImageResource(R.drawable.ic_cloud_off_white_24dp);
                 }
-                Connexion.setBackgroundColor(Color.RED);
-            }*/
-        }
-    };
 
-    private OnClickListener DeconnexionRobot = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (TcpClient.mRun) {
-                mTcpClient.stopClient();
-                reglages = null;
             }
         }
     };
@@ -215,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
     private OnClickListener Save = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            SendMessage(ModifParametrePrecis("0000", 30));
+
         }
     };
 
@@ -227,6 +336,7 @@ public class MainActivity extends AppCompatActivity {
         box.setTitle("Informations");
         return box;
     }
+
 
 
 
@@ -286,7 +396,17 @@ public class MainActivity extends AppCompatActivity {
                         DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre);
                         InitSaveSettingsInFile(DonneeTabPropre);
                         Log.i("Debug","MAJ");
+                        String[] test =  Load();
+                        byte[] Tab_Envoi = new byte[164];
+                        int j=0;
 
+                        for (int i=0;i<64;i++){
+                            byte[] test1 = new byte[fromHexString(test[i]).length];
+                            test1 = fromHexString(test[i]);
+                            System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+                            j = j+test1.length;
+
+                        }
                     }
 //                    message.clear();
                 }
@@ -312,8 +432,8 @@ public class MainActivity extends AppCompatActivity {
         int j=0;
         test[index] = valeur;
         for (int i=0;i<64;i++){
-            byte[] test1;
-            test1 = fromBinaryString(test[i]);
+            byte[] test1 = new byte[fromHexString(test[i]).length];
+            test1 = fromHexString(test[i]);
             System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
             j = j+test1.length;
         }
@@ -326,66 +446,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-    private static byte[] fromBinaryString (final String s) {
-        if (s.length() == 32){
-            byte[] b2 = new byte[4];
-            byte[] b = new BigInteger(s,2).toByteArray();
-            if (b.length==b2.length){
-                return b;
-            }
-            else if(b.length==1){
-                return b2;
-            }
-            else if (b.length == 3){
-                b2[0] = b[0];
-                b2[1] = b[0];
-                b2[2] = b[1];
-                b2[3] = b[2];
-                return b2;
-            }
-            else if (b.length == 2){
-                b2[0] = b[0];
-                b2[1] = b[0];
-                b2[2] = b[0];
-                b2[3] = b[1];
-                return b2;
-            }
-            else {
-                b2[0] = b[1];
-                b2[1] = b[2];
-                b2[2] = b[3];
-                b2[3] = b[4];
-                return b2;
-            }
-        }
-        else if (s.length() == 16){
-            byte[] b2 = new byte[2];
-            byte[] b = new BigInteger(s,2).toByteArray();
-            if (b.length==b2.length){
-                return b;
-            }
-            else if(b.length==1){
-                return b2;
-            }
-            else {
-                b2[0] = b[1];
-                b2[1] = b[2];
-                return b2;
-            }
-        }
-        else if (s.length() ==8){
-            byte[] b2 = new byte[1];
-            byte[] b = new BigInteger(s,2).toByteArray();
-            if (b.length==b2.length){
-                return b;
-            }
-            else {
-                b2[0]=b[1];
-                return b2;
-            }
-        }
-        return null;
     }
 
     private static byte[] fromHexString(final String encoded) {
@@ -433,7 +493,7 @@ public class MainActivity extends AppCompatActivity {
             k++;
         }
         for (int i=0;i<2;i++){
-            DonneeString[k] = String.format("%8s", Integer.toBinaryString(DonneeByte[j] & 0xFF)).replace(' ', '0');
+            DonneeString[k] = String.format(Integer.toHexString(DonneeByte[j] & 0xFF)).replace(' ', '0');
             if(DonneeString[k].length() == 1) {
                 DonneeString[k] = "0".concat(DonneeString[k]);
             }
@@ -446,7 +506,7 @@ public class MainActivity extends AppCompatActivity {
             k++;
         }
         for (int i=0;i<2;i++){
-            DonneeString[k] = String.format("%8s", Integer.toBinaryString(DonneeByte[j] & 0xFF)).replace(' ', '0');
+            DonneeString[k] = String.format(Integer.toHexString(DonneeByte[j] & 0xFF)).replace(' ', '0');
             if(DonneeString[k].length() == 1) {
                 DonneeString[k] = "0".concat(DonneeString[k]);
             }
@@ -482,7 +542,7 @@ public class MainActivity extends AppCompatActivity {
         int j = 0;
 
         for (int i=Indice; i<=Indice+1; i++){
-            Tab2o_inverse[j]= String.format("%8s", Integer.toBinaryString(DonneeByte[i] & 0xFF)).replace(' ', '0');
+            Tab2o_inverse[j]= String.format(Integer.toHexString(DonneeByte[i] & 0xFF)).replace(' ', '0');
             if(Tab2o_inverse[j].length() == 1) {
                 Tab2o_inverse[j] = "0".concat(Tab2o_inverse[j]);
             }
@@ -500,7 +560,7 @@ public class MainActivity extends AppCompatActivity {
         String Mot4o;
 
         for (int i=Indice; i<=Indice+3; i++){
-            Tab4o_inverse[j]= String.format("%8s", Integer.toBinaryString(DonneeByte[i] & 0xFF)).replace(' ', '0');
+            Tab4o_inverse[j]= String.format(Integer.toHexString(DonneeByte[i] & 0xFF)).replace(' ', '0');
             if(Tab4o_inverse[j].length() == 1) {
                 Tab4o_inverse[j] = "0".concat(Tab4o_inverse[j]);
             }
@@ -533,14 +593,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String ConcateneGroupe(String[] Tab, int indexDepart, int indexArriv){
-        String StringConcat;
+       String StringConcat;
         int k = indexArriv - indexDepart + 1;
         int kcompt=0;
-        String[] TabaConcatene = new String[k];
-        for(int i = indexDepart; i< indexArriv+1;i++){
-            TabaConcatene[kcompt] = Tab[i];
-            kcompt++;
-        }
+       String[] TabaConcatene = new String[k];
+       for(int i = indexDepart; i< indexArriv+1;i++){
+           TabaConcatene[kcompt] = Tab[i];
+           kcompt++;
+       }
         StringConcat =  Concatene(TabaConcatene);
         return StringConcat;
     }

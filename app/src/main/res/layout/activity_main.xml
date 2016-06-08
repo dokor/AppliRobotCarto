@@ -1,164 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="sevrain.test.MainActivity">
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start">
 
-
-    <RelativeLayout
+    <include
+        layout="@layout/app_bar_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" />
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="false"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentStart="false"
-            android:background="@color/colorPrimary"
-            android:id="@+id/linearLayout"
-            android:layout_alignParentTop="false"
-            android:layout_alignParentRight="false"
-            android:layout_alignParentEnd="false"
-            android:theme="@style/RN_Header"
-            android:layout_gravity="center"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="RobotCartographieur"
-                android:id="@+id/textView"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:layout_gravity="left|center" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Connexion"
-                android:id="@+id/Connexion"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:textStyle="italic"
-                android:elegantTextHeight="true" />
-
-        </LinearLayout>
-
-        <GridLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="false"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
->
-
-            <RelativeLayout
-                android:id="@+id/layout_joystick"
-                android:layout_height="280dp"
-                android:layout_width="280dp"
-                android:background="@drawable/image_button_bg"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_row="0"
-                android:layout_column="6">
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_main"
+        app:menu="@menu/activity_main_drawer" />
 
 
-            </RelativeLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/PosY"
-                android:text="Y"
-                android:textColor="#444444"
-                android:textSize="20dp"
-                android:layout_below="@+id/PosX"
-                android:layout_alignRight="@+id/PosX"
-                android:layout_alignEnd="@+id/PosX"
-                android:layout_alignLeft="@+id/PosX"
-                android:layout_alignStart="@+id/PosX"
-                android:layout_row="0"
-                android:layout_column="16" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/PosX"
-                android:text="X"
-                android:textColor="#444444"
-                android:textSize="20dp"
-                android:layout_below="@+id/Phares"
-                android:layout_alignLeft="@+id/Phares"
-                android:layout_alignStart="@+id/Phares"
-                android:layout_alignRight="@+id/Phares"
-                android:layout_alignEnd="@+id/Phares"
-                android:layout_row="0"
-                android:layout_column="17" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Info"
-                android:id="@+id/Info"
-                android:layout_alignParentTop="false"
-                android:layout_alignParentRight="false"
-                android:layout_alignParentEnd="true"
-                android:layout_row="0"
-                android:layout_column="18" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="On/Off"
-                android:id="@+id/Start"
-                android:layout_below="@+id/Info"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_row="0"
-                android:layout_column="19" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Phares"
-                android:id="@+id/Phares"
-                android:layout_below="@+id/Start"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_row="0"
-                android:layout_column="20" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Déconnexion"
-                android:id="@+id/Deconnexion"
-                android:layout_below="@+id/PosY"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_row="0"
-                android:layout_column="21" />
-
-            <Button
-                android:id="@+id/LoadFichier"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Write"
-                android:onClick="Save"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_row="0"
-                android:layout_column="22" />
-        </GridLayout>
-
-    </RelativeLayout>
-
-
-</RelativeLayout>
+</android.support.v4.widget.DrawerLayout>
