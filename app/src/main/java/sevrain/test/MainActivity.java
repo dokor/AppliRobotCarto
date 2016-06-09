@@ -1,52 +1,40 @@
 package sevrain.test;
 
 import android.app.Dialog;
-import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import android.view.MotionEvent;
-import android.view.View.OnTouchListener;
-import android.view.View.OnClickListener;
-import android.widget.RelativeLayout;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import android.widget.EditText;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 
@@ -58,7 +46,6 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton Phares, Connexion, Btn_TEST;
     private JoyStickClass js;
     private TcpClient mTcpClient;
-    private Reglages reglages;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
     private int k_phare =0;
@@ -289,7 +276,6 @@ public class MainActivity extends AppCompatActivity
                 Log.i("Debug", "Connexion");
                 if (TcpClient.mRun) {
                     mTcpClient.stopClient();
-                    reglages = null;
                     Connexion.setImageResource(R.drawable.ic_cloud_off_white_24dp);
                 }
 
