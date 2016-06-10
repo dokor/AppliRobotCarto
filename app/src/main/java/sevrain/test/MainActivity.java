@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity
     private TextView PosX, PosY, Direction;
     private FloatingActionButton Phares, Connexion, Btn_TEST;
     private JoyStickClass js;
-    private TcpClient mTcpClient;
+    public TcpClient mTcpClient;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
     private int k_phare =0;
@@ -110,31 +110,77 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
                             SendMessage(ModifParametrePrecis("00000000000000000100001101111010", 26));
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_UPRIGHT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000001011010011000001", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_RIGHT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                            SendMessage(ModifParametrePrecis("00000000000000000011010001000010", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_DOWNRIGHT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000001011010011000001", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_DOWN) {
                         if (lock[1]==0){
                             lock[1]=1;
                         }
                         if (lock[0] == 0 || lock[1] == 1) {
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
                             SendMessage(ModifParametrePrecis("00000000000000000111101011000011", 26));
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_DOWNLEFT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_LEFT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                            SendMessage(ModifParametrePrecis("00000000000000000011010011000010", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_UPLEFT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_NONE) {
-                        //
+                        if (lock[0] != 1) {
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                            Log.i("Debug","Stop");
+                            lock[0] = 0;
+                            lock[1] = 0;
+                        }
                     }
                 } else if (arg1.getAction() == MotionEvent.ACTION_UP) {
                     PosX.setText("X:");
@@ -165,6 +211,9 @@ public class MainActivity extends AppCompatActivity
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+//        LoadMessageRobot(mTcpClient);
+
     }
 
     @Override
@@ -223,22 +272,10 @@ public class MainActivity extends AppCompatActivity
     private OnClickListener Action_Btn_TEST = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            int[] m = null;
+            m = LoadMessageRobot(mTcpClient);
+            String cho = "test";
 
-            String[] test =  Load();
-            byte[] Tab_Envoi = new byte[164];
-            int j=0;
-            test[39] = "01";
-            test[40] = "01";
-
-            for (int i=0;i<64;i++){
-                byte[] test1 = new byte[fromBinaryString(test[i]).length];
-                test1 = fromBinaryString(test[i]);
-                System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
-                j = j+test1.length;
-            }
-            if (TcpClient.mRun) {
-                SendMessage(Tab_Envoi);
-            }
 
         }
     };
@@ -268,7 +305,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onClick(View v) {
             if(mTcpClient.mRun != true) {
-                new ConnectTask().execute();
+                new ConnectTask().startBackgroundPerform();
                 Connexion.setImageResource(R.drawable.ic_cloud_done_white_24dp);
 
             }
@@ -316,9 +353,16 @@ public class MainActivity extends AppCompatActivity
                 public void run() {
                     handler.post(new Runnable() {
                         public void run() {
+                            ConnectTask performBackgroundTask = new ConnectTask();
                             try {
-                                ConnectTask performBackgroundTask = new ConnectTask();
-                                performBackgroundTask.execute();
+                                if(mTcpClient==null) {
+                                    performBackgroundTask.execute();
+                                }
+                                else{
+                                    updateData(mTcpClient.bf);
+                                    Log.i("Debug","update");
+                                }
+         //                           Log.i("Debug","execute");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -356,9 +400,9 @@ public class MainActivity extends AppCompatActivity
                         //Header OK
                         DevinTypeMessage(T_Transport);
                         DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre);
-                        InitSaveSettingsInFile(DonneeTabPropre);
+                        SaveDataInFile(DonneeTabPropre);
                         Log.i("Debug","MAJ");
-                        String[] test =  Load();
+                        String[] test =  LoadFile();
                         byte[] Tab_Envoi = new byte[164];
                         int j=0;
 
@@ -388,8 +432,42 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    protected void updateData(ByteBuffer message){
+        byte[] resultat = new byte[164];
+        //Remplissage avec les valeurs du message recu
+        resultat = message.array();
+        //Creation du Tableau de string
+        String[] T_Transport = new String[16];
+        String[] DonneeTabPropre = new String[64];
+        int i = 0;
+        int k=0;
+        while (resultat[i] != -86)
+        {
+            i++;
+        }
+        k = i;
+        //Remplissage du tableau de string avec les valeurs en Hexa de resultat
+        for (int j=0;j<16;j++){
+            T_Transport[j]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+            i++;
+        }
+        //Inversion des données du tableau selon methode spécial Header
+        T_Transport = InverseData(T_Transport);
+        byte[] resultat2 = new byte[(resultat.length)-k];
+        System.arraycopy(resultat,k,resultat2,0,(resultat.length)-k);
+
+        //Vérification du header, afin d'etre sur de son intégrité
+        if(VerifIntegriteHeader(T_Transport)){
+            //Header OK
+            DevinTypeMessage(T_Transport);
+            DonneeTabPropre = InverseMessageT_Transp(resultat2,DonneeTabPropre);
+            SaveDataInFile(DonneeTabPropre);
+            Log.i("Debug","MAJ Data");
+        }
+    }
+
     private byte[] ModifParametrePrecis(String valeur, Integer index){
-        String[] test =  Load();
+        String[] test =  LoadFile();
         byte[] Tab_Envoi = new byte[164];
         int j=0;
         test[index] = valeur;
@@ -715,7 +793,21 @@ public class MainActivity extends AppCompatActivity
         return Tab_Inverse;
     }
 
-    public void SaveSettingsInFileUNIT(String ligneAEcrire, FileOutputStream  fos)
+    public void InitSettings(){
+        String[] choco = LoadFile();
+    }
+
+    public int[] LoadMessageRobot(TcpClient TCPC){
+        int[] test = null;
+        try {
+             test =  TCPC.GetMessage();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return test;
+    }
+
+    public void SaveDataInFileUNIT(String ligneAEcrire, FileOutputStream  fos)
     {
         final PrintStream printStream = new PrintStream(fos);
         try
@@ -728,15 +820,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void InitSaveSettingsInFile(String[] data)
+    public void SaveDataInFile(String[] data)
     {
-        String[] DataTEST;
-        String[] dataNull = null;
-        if(data == dataNull){
-            DataTEST = new String[]{"test1,savesettings", "test ligne 2", "test ligne 3"};
-            data = DataTEST;
-        }
-
         FileOutputStream fos = null;
         try
         {
@@ -745,7 +830,7 @@ public class MainActivity extends AppCompatActivity
         catch (FileNotFoundException e){e.printStackTrace();}
 
         for (String ligneTab : data) {
-            SaveSettingsInFileUNIT(ligneTab, fos); //Ecriture de chaque ligne dans le fichier settings
+            SaveDataInFileUNIT(ligneTab, fos); //Ecriture de chaque ligne dans le fichier settings
         }
         try
         {
@@ -755,7 +840,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public String[] Load()
+    public String[] LoadFile()
     {
         FileInputStream fis = null;
         try
