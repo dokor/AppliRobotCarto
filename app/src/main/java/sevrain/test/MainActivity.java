@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity
     private TextView PosX, PosY, Direction;
     private FloatingActionButton Phares, Connexion, Btn_TEST;
     private JoyStickClass js;
-    private TcpClient mTcpClient;
+    public TcpClient mTcpClient;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
     private int k_phare =0;
@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity
 
         final int[] lock = {0,0};
 
+        
         layout_joystick.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View arg0, MotionEvent arg1) {
                 js.drawStick(arg1);
@@ -110,9 +111,8 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000001011001000011", 27,26));
-                            /*SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
-                            SendMessage(ModifParametrePrecis("00000000000000000100001101111010", 26));*/
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
+                            SendMessage(ModifParametrePrecis("00000000000000000100001101111010", 26));
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_UPRIGHT) {
@@ -120,8 +120,12 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
+<<<<<<< HEAD
                             SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010","00000000000000000001011001000011", 27,26));
                             /*SendMessage(ModifParametrePrecis("00000000000000001011010011000001", 27));*/
+=======
+                            SendMessage(ModifParametrePrecis("00000000000000001011010011000001", 27));
+>>>>>>> origin/Antoine
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_RIGHT) {
@@ -129,9 +133,8 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010","00000000000000000000000000000000", 27,26));
-/*                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
-                            SendMessage(ModifParametrePrecis("00000000000000000011010011000010", 27));*/
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                            SendMessage(ModifParametrePrecis("00000000000000000011010001000010", 27));
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_DOWNRIGHT) {
@@ -139,8 +142,12 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
+<<<<<<< HEAD
                             SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010","00000000000000000100100011000011", 27,26));
 //                            SendMessage(ModifParametrePrecis("00000000000000001011010011000001", 27));
+=======
+                            SendMessage(ModifParametrePrecis("00000000000000001011010011000001", 27));
+>>>>>>> origin/Antoine
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_DOWN) {
@@ -148,9 +155,8 @@ public class MainActivity extends AppCompatActivity
                             lock[1]=1;
                         }
                         if (lock[0] == 0 || lock[1] == 1) {
-                            SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000100100011000011", 27,26));
-                            /*SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
-                            SendMessage(ModifParametrePrecis("00000000000000000111101011000011", 26));*/
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
+                            SendMessage(ModifParametrePrecis("00000000000000000111101011000011", 26));
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_DOWNLEFT) {
@@ -158,8 +164,12 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
+<<<<<<< HEAD
                             SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010","00000000000000000100100011000011", 27,26));
 //                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
+=======
+                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
+>>>>>>> origin/Antoine
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_LEFT) {
@@ -167,9 +177,8 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010","00000000000000000000000000000000", 27,26));
-             /*               SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
-                            SendMessage(ModifParametrePrecis("00000000000000000011010001000010", 27));*/
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                            SendMessage(ModifParametrePrecis("00000000000000000011010011000010", 27));
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_UPLEFT) {
@@ -177,15 +186,18 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
+<<<<<<< HEAD
                             SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010","00000000000000000001011001000011", 27,26));
 //                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
+=======
+                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
+>>>>>>> origin/Antoine
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_NONE) {
                         if (lock[0] != 1) {
-                            SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000000000000000000", 27,26));
- /*                           SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
-                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));*/
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
                             Log.i("Debug","Stop");
                             lock[0] = 0;
                             lock[1] = 0;
@@ -196,8 +208,7 @@ public class MainActivity extends AppCompatActivity
                     PosY.setText("Y:");
 
                     if (lock[0] != 1) {
-                        SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000000000000000000", 27,26));
-//                        SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                        SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
                         Log.i("Debug","Stop");
                         lock[0] = 0;
                         lock[1] = 0;
@@ -221,8 +232,10 @@ public class MainActivity extends AppCompatActivity
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
 
+//        LoadMessageRobot(mTcpClient);
+
+    }
 
     @Override
     public void onBackPressed() {
@@ -280,22 +293,10 @@ public class MainActivity extends AppCompatActivity
     private OnClickListener Action_Btn_TEST = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            int[] m = null;
+            m = LoadMessageRobot(mTcpClient);
+            String cho = "test";
 
-            String[] test =  Load();
-            byte[] Tab_Envoi = new byte[164];
-            int j=0;
-            test[39] = "01";
-            test[40] = "01";
-
-            for (int i=0;i<64;i++){
-                byte[] test1 = new byte[fromBinaryString(test[i]).length];
-                test1 = fromBinaryString(test[i]);
-                System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
-                j = j+test1.length;
-            }
-            if (TcpClient.mRun) {
-                SendMessage(Tab_Envoi);
-            }
 
         }
     };
@@ -330,6 +331,10 @@ public class MainActivity extends AppCompatActivity
 
             }
             else if (mTcpClient.mRun == true) {
+<<<<<<< HEAD
+=======
+                Log.i("Debug", "Connexion");
+>>>>>>> origin/Antoine
                 if (TcpClient.mRun) {
                     mTcpClient.stopClient();
                     Connexion.setImageResource(R.drawable.ic_cloud_off_white_24dp);
@@ -431,10 +436,21 @@ public class MainActivity extends AppCompatActivity
                         //Header OK
                         DevinTypeMessage(T_Transport);
                         DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre);
-                        InitSaveSettingsInFile(DonneeTabPropre);
+                        SaveDataInFile(DonneeTabPropre);
                         Log.i("Debug","MAJ");
+                        String[] test =  LoadFile();
+                        byte[] Tab_Envoi = new byte[164];
+                        int j=0;
+
+                        for (int i=0;i<64;i++){
+                            byte[] test1 = new byte[fromBinaryString(test[i]).length];
+                            test1 = fromBinaryString(test[i]);
+                            System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+                            j = j+test1.length;
+
+                        }
                     }
-                    message.clear();
+//                    message.clear();
                 }
                 public void connectionClosed() {
                 }
@@ -444,7 +460,6 @@ public class MainActivity extends AppCompatActivity
             mTcpClient.run();
             return null;
         }
-
 
         @Override
         protected void onProgressUpdate(ByteBuffer... values) {
@@ -482,13 +497,13 @@ public class MainActivity extends AppCompatActivity
             //Header OK
             DevinTypeMessage(T_Transport);
             DonneeTabPropre = InverseMessageT_Transp(resultat2,DonneeTabPropre);
-            InitSaveSettingsInFile(DonneeTabPropre);
+            SaveDataInFile(DonneeTabPropre);
             Log.i("Debug","MAJ Data");
         }
     }
 
     private byte[] ModifParametrePrecis(String valeur, Integer index){
-        String[] test =  Load();
+        String[] test =  LoadFile();
         byte[] Tab_Envoi = new byte[164];
         int j=0;
         test[index] = valeur;
@@ -500,22 +515,6 @@ public class MainActivity extends AppCompatActivity
         }
         return Tab_Envoi;
     }
-
-    private byte[] Modif2ParametrePrecis(String valeur,String valeur2,Integer index,Integer index2){
-        String[] test =  Load();
-        byte[] Tab_Envoi = new byte[164];
-        int j=0;
-        test[index] = valeur;
-        test[index2] = valeur2;
-        for (int i=0;i<64;i++){
-            byte[] test1 = new byte[fromBinaryString(test[i]).length];
-            test1 = fromBinaryString(test[i]);
-            System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
-            j = j+test1.length;
-        }
-        return Tab_Envoi;
-    }
-
     private void SendMessage(byte[] tabBEnvoi){
         try {
             mTcpClient.sendMessage(tabBEnvoi);
@@ -830,7 +829,21 @@ public class MainActivity extends AppCompatActivity
         return Tab_Inverse;
     }
 
-    public void SaveSettingsInFileUNIT(String ligneAEcrire, FileOutputStream  fos)
+    public void InitSettings(){
+        String[] choco = LoadFile();
+    }
+
+    public int[] LoadMessageRobot(TcpClient TCPC){
+        int[] test = null;
+        try {
+             test =  TCPC.GetMessage();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return test;
+    }
+
+    public void SaveDataInFileUNIT(String ligneAEcrire, FileOutputStream  fos)
     {
         final PrintStream printStream = new PrintStream(fos);
         try
@@ -843,15 +856,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void InitSaveSettingsInFile(String[] data)
+    public void SaveDataInFile(String[] data)
     {
-        String[] DataTEST;
-        String[] dataNull = null;
-        if(data == dataNull){
-            DataTEST = new String[]{"test1,savesettings", "test ligne 2", "test ligne 3"};
-            data = DataTEST;
-        }
-
         FileOutputStream fos = null;
         try
         {
@@ -860,7 +866,7 @@ public class MainActivity extends AppCompatActivity
         catch (FileNotFoundException e){e.printStackTrace();}
 
         for (String ligneTab : data) {
-            SaveSettingsInFileUNIT(ligneTab, fos); //Ecriture de chaque ligne dans le fichier settings
+            SaveDataInFileUNIT(ligneTab, fos); //Ecriture de chaque ligne dans le fichier settings
         }
         try
         {
@@ -870,7 +876,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public String[] Load()
+    public String[] LoadFile()
     {
         FileInputStream fis = null;
         try

@@ -7,6 +7,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -57,6 +58,20 @@ public class TcpClient {
             outFromClient.write(message);
             outFromClient.flush();
         }
+    }
+
+    public int[] GetMessage() throws IOException {
+        int[] Tab_String = new int[164];
+        ByteBuffer bfmess = bf;
+        if (mRun) {
+            if (inFromServer != null) {
+                bfmess.order(ByteOrder.LITTLE_ENDIAN);
+                for (int i = 0; i < 164; i++) {
+                    Tab_String[i] = inFromServer.read();
+                }
+            }
+        }
+        return Tab_String;
     }
 
     public void run() {
