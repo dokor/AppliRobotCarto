@@ -95,14 +95,14 @@ public class TcpClient {
                 outFromClient = new BufferedOutputStream(socket.getOutputStream());
 //                outFromClient = new DataOutputStream(socket.getOutputStream());
 
-                bf = ByteBuffer.allocate(bufferSize);
+
 
 
 
 
                 while (mRun) {
                     // Log.i("Debug", "inside while mRun");
-
+                    bf = ByteBuffer.allocate(bufferSize);
                     bf.order(ByteOrder.LITTLE_ENDIAN);
                     for (int i=0;i<5000;i++) {
                         int b = inFromServer.read();
@@ -121,7 +121,7 @@ public class TcpClient {
                         mMessageListener.messageReceived(bf);
                         mMessageListener.updateBatteryLvl();
                     }
-                    bf.clear();
+                    bf = null;
                 }
             }
             catch (Exception e) {
