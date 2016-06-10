@@ -110,7 +110,9 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(ModifParametrePrecis("00000000000000000100001101111010", 26));
+                            SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000001011001000011", 27,26));
+                            /*SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
+                            SendMessage(ModifParametrePrecis("00000000000000000100001101111010", 26));*/
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_UPRIGHT) {
@@ -118,7 +120,8 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(ModifParametrePrecis("00000000000000000100001101111010", 27));
+                            SendMessage(Modif2ParametrePrecis("00000000000000001011010011000001","00000000000000000001011001000011", 27,26));
+                            /*SendMessage(ModifParametrePrecis("00000000000000001011010011000001", 27));*/
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_RIGHT) {
@@ -126,7 +129,9 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(ModifParametrePrecis("00000000000000000011010001000010", 27));
+                            SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010","00000000000000000000000000000000", 27,26));
+/*                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                            SendMessage(ModifParametrePrecis("00000000000000000011010011000010", 27));*/
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_DOWNRIGHT) {
@@ -134,7 +139,8 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(ModifParametrePrecis("00000000000000000100001101111010", 27));
+                            SendMessage(Modif2ParametrePrecis("00000000000000001011010011000001","00000000000000000100100011000011", 27,26));
+//                            SendMessage(ModifParametrePrecis("00000000000000001011010011000001", 27));
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_DOWN) {
@@ -142,7 +148,9 @@ public class MainActivity extends AppCompatActivity
                             lock[1]=1;
                         }
                         if (lock[0] == 0 || lock[1] == 1) {
-                            SendMessage(ModifParametrePrecis("00000000000000000111101011000011", 26));
+                            SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000100100011000011", 27,26));
+                            /*SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
+                            SendMessage(ModifParametrePrecis("00000000000000000111101011000011", 26));*/
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_DOWNLEFT) {
@@ -150,7 +158,8 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
+                            SendMessage(Modif2ParametrePrecis("00000000000000001011010001000001","00000000000000000100100011000011", 27,26));
+//                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_LEFT) {
@@ -158,8 +167,9 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
-                            SendMessage(ModifParametrePrecis("00000000000000000011010011000010", 27));
+                            SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010","00000000000000000000000000000000", 27,26));
+             /*               SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                            SendMessage(ModifParametrePrecis("00000000000000000011010001000010", 27));*/
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_UPLEFT) {
@@ -167,12 +177,15 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
+                            SendMessage(Modif2ParametrePrecis("00000000000000001011010001000001","00000000000000000001011001000011", 27,26));
+//                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_NONE) {
                         if (lock[0] != 1) {
-                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                            SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000000000000000000", 27,26));
+ /*                           SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 27));
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));*/
                             Log.i("Debug","Stop");
                             lock[0] = 0;
                             lock[1] = 0;
@@ -183,7 +196,8 @@ public class MainActivity extends AppCompatActivity
                     PosY.setText("Y:");
 
                     if (lock[0] != 1) {
-                        SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                        SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000000000000000000", 27,26));
+//                        SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
                         Log.i("Debug","Stop");
                         lock[0] = 0;
                         lock[1] = 0;
@@ -476,6 +490,22 @@ public class MainActivity extends AppCompatActivity
         }
         return Tab_Envoi;
     }
+
+    private byte[] Modif2ParametrePrecis(String valeur,String valeur2,Integer index,Integer index2){
+        String[] test =  Load();
+        byte[] Tab_Envoi = new byte[164];
+        int j=0;
+        test[index] = valeur;
+        test[index2] = valeur2;
+        for (int i=0;i<64;i++){
+            byte[] test1 = new byte[fromBinaryString(test[i]).length];
+            test1 = fromBinaryString(test[i]);
+            System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+            j = j+test1.length;
+        }
+        return Tab_Envoi;
+    }
+
     private void SendMessage(byte[] tabBEnvoi){
         try {
             mTcpClient.sendMessage(tabBEnvoi);
