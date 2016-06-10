@@ -114,11 +114,29 @@ public class MainActivity extends AppCompatActivity
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_UPRIGHT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000000100001101111010", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_RIGHT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000000011010001000010", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_DOWNRIGHT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000000100001101111010", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_DOWN) {
                         if (lock[1]==0){
                             lock[1]=1;
@@ -128,13 +146,37 @@ public class MainActivity extends AppCompatActivity
                             lock[0]++;
                         }
                     } else if (direction == JoyStickClass.STICK_DOWNLEFT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_LEFT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                            SendMessage(ModifParametrePrecis("00000000000000000011010011000010", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_UPLEFT) {
-                        //
+                        if (lock[0] == 0 || lock[1] == 1) {
+                            if (lock[1]==0){
+                                lock[1]=1;
+                            }
+                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
+                            lock[0]++;
+                        }
                     } else if (direction == JoyStickClass.STICK_NONE) {
-                        //
+                        if (lock[0] != 1) {
+                            SendMessage(ModifParametrePrecis("00000000000000000000000000000000", 26));
+                            Log.i("Debug","Stop");
+                            lock[0] = 0;
+                            lock[1] = 0;
+                        }
                     }
                 } else if (arg1.getAction() == MotionEvent.ACTION_UP) {
                     PosX.setText("X:");
@@ -166,6 +208,7 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
     }
+
 
     @Override
     public void onBackPressed() {
@@ -268,18 +311,18 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onClick(View v) {
             if(mTcpClient.mRun != true) {
-                new ConnectTask().execute();
+                new ConnectTask().startBackgroundPerform();
                 Connexion.setImageResource(R.drawable.ic_cloud_done_white_24dp);
 
             }
-            else if (mTcpClient.mRun == true) {
+            /*else if (mTcpClient.mRun == true) {
                 Log.i("Debug", "Connexion");
                 if (TcpClient.mRun) {
                     mTcpClient.stopClient();
                     Connexion.setImageResource(R.drawable.ic_cloud_off_white_24dp);
                 }
 
-            }
+            }*/
         }
     };
 
@@ -309,6 +352,7 @@ public class MainActivity extends AppCompatActivity
         public void startBackgroundPerform() {
             Timer timerAsync;
             TimerTask timerTaskAsync;
+
             final Handler handler = new Handler();
             timerAsync = new Timer();
             timerTaskAsync = new TimerTask() {
@@ -316,9 +360,16 @@ public class MainActivity extends AppCompatActivity
                 public void run() {
                     handler.post(new Runnable() {
                         public void run() {
+                            ConnectTask performBackgroundTask = new ConnectTask();
                             try {
-                                ConnectTask performBackgroundTask = new ConnectTask();
-                                performBackgroundTask.execute();
+                                if(mTcpClient==null) {
+                                    performBackgroundTask.execute();
+                                }
+                                else{
+                                    updateData(mTcpClient.bf);
+                                    Log.i("Debug","update");
+                                }
+         //                           Log.i("Debug","execute");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -358,19 +409,8 @@ public class MainActivity extends AppCompatActivity
                         DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre);
                         InitSaveSettingsInFile(DonneeTabPropre);
                         Log.i("Debug","MAJ");
-                        String[] test =  Load();
-                        byte[] Tab_Envoi = new byte[164];
-                        int j=0;
-
-                        for (int i=0;i<64;i++){
-                            byte[] test1 = new byte[fromBinaryString(test[i]).length];
-                            test1 = fromBinaryString(test[i]);
-                            System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
-                            j = j+test1.length;
-
-                        }
                     }
-//                    message.clear();
+                    message.clear();
                 }
                 public void connectionClosed() {
                 }
@@ -381,10 +421,45 @@ public class MainActivity extends AppCompatActivity
             return null;
         }
 
+
         @Override
         protected void onProgressUpdate(ByteBuffer... values) {
             super.onProgressUpdate();
             //    Log.i("onProgressUpdate","" + values);
+        }
+    }
+
+    protected void updateData(ByteBuffer message){
+        byte[] resultat = new byte[164];
+        //Remplissage avec les valeurs du message recu
+        resultat = message.array();
+        //Creation du Tableau de string
+        String[] T_Transport = new String[16];
+        String[] DonneeTabPropre = new String[64];
+        int i = 0;
+        int k=0;
+        while (resultat[i] != -86)
+        {
+            i++;
+        }
+        k = i;
+        //Remplissage du tableau de string avec les valeurs en Hexa de resultat
+        for (int j=0;j<16;j++){
+            T_Transport[j]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+            i++;
+        }
+        //Inversion des données du tableau selon methode spécial Header
+        T_Transport = InverseData(T_Transport);
+        byte[] resultat2 = new byte[(resultat.length)-k];
+        System.arraycopy(resultat,k,resultat2,0,(resultat.length)-k);
+
+        //Vérification du header, afin d'etre sur de son intégrité
+        if(VerifIntegriteHeader(T_Transport)){
+            //Header OK
+            DevinTypeMessage(T_Transport);
+            DonneeTabPropre = InverseMessageT_Transp(resultat2,DonneeTabPropre);
+            InitSaveSettingsInFile(DonneeTabPropre);
+            Log.i("Debug","MAJ Data");
         }
     }
 
