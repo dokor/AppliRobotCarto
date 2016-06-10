@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(Modif2ParametrePrecis("00000000000000001011010011000001","00000000000000000001011001000011", 27,26));
+                            SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010","00000000000000000001011001000011", 27,26));
                             /*SendMessage(ModifParametrePrecis("00000000000000001011010011000001", 27));*/
                             lock[0]++;
                         }
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(Modif2ParametrePrecis("00000000000000001011010011000001","00000000000000000100100011000011", 27,26));
+                            SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010","00000000000000000100100011000011", 27,26));
 //                            SendMessage(ModifParametrePrecis("00000000000000001011010011000001", 27));
                             lock[0]++;
                         }
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(Modif2ParametrePrecis("00000000000000001011010001000001","00000000000000000100100011000011", 27,26));
+                            SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010","00000000000000000100100011000011", 27,26));
 //                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
                             lock[0]++;
                         }
@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity
                             if (lock[1]==0){
                                 lock[1]=1;
                             }
-                            SendMessage(Modif2ParametrePrecis("00000000000000001011010001000001","00000000000000000001011001000011", 27,26));
+                            SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010","00000000000000000001011001000011", 27,26));
 //                            SendMessage(ModifParametrePrecis("00000000000000001011010001000001", 27));
                             lock[0]++;
                         }
@@ -329,14 +329,13 @@ public class MainActivity extends AppCompatActivity
                 Connexion.setImageResource(R.drawable.ic_cloud_done_white_24dp);
 
             }
-            /*else if (mTcpClient.mRun == true) {
-                Log.i("Debug", "Connexion");
+            else if (mTcpClient.mRun == true) {
                 if (TcpClient.mRun) {
                     mTcpClient.stopClient();
                     Connexion.setImageResource(R.drawable.ic_cloud_off_white_24dp);
                 }
 
-            }*/
+            }
         }
     };
 
@@ -363,21 +362,25 @@ public class MainActivity extends AppCompatActivity
     //Class pour connexion tcp
     public class ConnectTask extends AsyncTask<Void, ByteBuffer, TcpClient> {
 
+        private Runnable r;
+
         public void startBackgroundPerform() {
             Timer timerAsync;
             TimerTask timerTaskAsync;
-
             final Handler handler = new Handler();
             timerAsync = new Timer();
             timerTaskAsync = new TimerTask() {
                 @Override
                 public void run() {
-                    handler.post(new Runnable() {
+                    handler.post(r = new Runnable() {
                         public void run() {
                             ConnectTask performBackgroundTask = new ConnectTask();
                             try {
                                 if(mTcpClient==null) {
                                     performBackgroundTask.execute();
+                                }
+                                else if (TcpClient.mRun == false){
+                                    killProcess();
                                 }
                                 else{
                                     updateData(mTcpClient.bf);
@@ -390,9 +393,16 @@ public class MainActivity extends AppCompatActivity
                         }
                     });
                 }
+                public void killProcess(){
+                    handler.removeCallbacks(r);
+                }
             };
-            timerAsync.schedule(timerTaskAsync, 0, 1000);
+            timerAsync.schedule(timerTaskAsync, 0, 500);
+
         }
+
+
+
         @Override
         protected TcpClient doInBackground(Void... params) {
             //we create a TCPClient object and
