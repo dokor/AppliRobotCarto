@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity
 
         final int[] lock = {0,0};
 
+        
         layout_joystick.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View arg0, MotionEvent arg1) {
                 js.drawStick(arg1);
