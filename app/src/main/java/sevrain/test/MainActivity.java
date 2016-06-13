@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -68,9 +69,6 @@ public class MainActivity extends AppCompatActivity
 
         //Création du joystick + Position X/Y + Boutons
         layout_joystick = (RelativeLayout) findViewById(R.id.layout_joystick);
-        PosX = (TextView) findViewById(R.id.PosX);
-        PosY = (TextView) findViewById(R.id.PosY);
-        Direction = (TextView) findViewById(R.id.Direction);
 
         Phares = (FloatingActionButton) findViewById(R.id.Phares);
         Btn_TEST = (FloatingActionButton) findViewById(R.id.Btn_TEST);
@@ -87,7 +85,7 @@ public class MainActivity extends AppCompatActivity
         js = new JoyStickClass(getApplicationContext()
                 , layout_joystick, R.drawable.image_button);
         js.setStickSize(75, 75);
-        js.setLayoutSize(300, 300);
+        js.setLayoutSize(400, 400);
         js.setLayoutAlpha(200);
         js.setStickAlpha(100);
         js.setOffset(35);
@@ -99,106 +97,109 @@ public class MainActivity extends AppCompatActivity
         layout_joystick.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View arg0, MotionEvent arg1) {
                 js.drawStick(arg1);
-                if (arg1.getAction() == MotionEvent.ACTION_DOWN
-                        || arg1.getAction() == MotionEvent.ACTION_MOVE) {
-                    PosX.setText("X: " + String.valueOf(js.getX()));
-                    PosY.setText("Y: " + String.valueOf(js.getY()));
-                    Direction.setText("Direct: " + String.valueOf(js.get8Direction()));
+                if (TcpClient.mRun) {
+                    if (arg1.getAction() == MotionEvent.ACTION_DOWN
+                            || arg1.getAction() == MotionEvent.ACTION_MOVE) {
+//                        PosX.setText("X: " + String.valueOf(js.getX()));
+//                        PosY.setText("Y: " + String.valueOf(js.getY()));
+//                        Direction.setText("Direct: " + String.valueOf(js.get8Direction()));
 
-                    int direction = js.get8Direction();
-                    if (direction == JoyStickClass.STICK_UP) {
-                        if (lock[0] == 0 || lock[1] == 1) {
-                            if (lock[1]==0){
-                                lock[1]=1;
+                        int direction = js.get8Direction();
+                        if (direction == JoyStickClass.STICK_UP) {
+                            if (lock[0] == 0 || lock[1] == 1) {
+                                if (lock[1] == 0) {
+                                    lock[1] = 1;
+                                }
+                                SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000", "00000000000000000001011001000011", 27, 26));
+                                lock[0]++;
                             }
-                            SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000001011001000011", 27,26));
-                            lock[0]++;
-                        }
-                    } else if (direction == JoyStickClass.STICK_UPRIGHT) {
-                        if (lock[0] == 0 || lock[1] == 1) {
-                            if (lock[1]==0){
-                                lock[1]=1;
-                            }
+                        } else if (direction == JoyStickClass.STICK_UPRIGHT) {
+                            if (lock[0] == 0 || lock[1] == 1) {
+                                if (lock[1] == 0) {
+                                    lock[1] = 1;
+                                }
 
-                            SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010","00000000000000000001011001000011", 27,26));
+                                SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010", "00000000000000000001011001000011", 27, 26));
 
-                            lock[0]++;
-                        }
-                    } else if (direction == JoyStickClass.STICK_RIGHT) {
-                        if (lock[0] == 0 || lock[1] == 1) {
-                            if (lock[1]==0){
-                                lock[1]=1;
+                                lock[0]++;
                             }
-                            SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010","00000000000000000000000000000000", 27,26));
-                            lock[0]++;
-                        }
-                    } else if (direction == JoyStickClass.STICK_DOWNRIGHT) {
-                        if (lock[0] == 0 || lock[1] == 1) {
-                            if (lock[1]==0){
-                                lock[1]=1;
+                        } else if (direction == JoyStickClass.STICK_RIGHT) {
+                            if (lock[0] == 0 || lock[1] == 1) {
+                                if (lock[1] == 0) {
+                                    lock[1] = 1;
+                                }
+                                SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010", "00000000000000000000000000000000", 27, 26));
+                                lock[0]++;
                             }
-                            SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010","00000000000000000100100011000011", 27,26));
-                            lock[0]++;
-                        }
-                    } else if (direction == JoyStickClass.STICK_DOWN) {
-                        if (lock[1]==0){
-                            lock[1]=1;
-                        }
-                        if (lock[0] == 0 || lock[1] == 1) {
-                            SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000100100011000011", 27,26));
-                            lock[0]++;
-                        }
-                    } else if (direction == JoyStickClass.STICK_DOWNLEFT) {
-                        if (lock[0] == 0 || lock[1] == 1) {
-                            if (lock[1]==0){
-                                lock[1]=1;
+                        } else if (direction == JoyStickClass.STICK_DOWNRIGHT) {
+                            if (lock[0] == 0 || lock[1] == 1) {
+                                if (lock[1] == 0) {
+                                    lock[1] = 1;
+                                }
+                                SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010", "00000000000000000100100011000011", 27, 26));
+                                lock[0]++;
                             }
+                        } else if (direction == JoyStickClass.STICK_DOWN) {
+                            if (lock[1] == 0) {
+                                lock[1] = 1;
+                            }
+                            if (lock[0] == 0 || lock[1] == 1) {
+                                SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000", "00000000000000000100100011000011", 27, 26));
+                                lock[0]++;
+                            }
+                        } else if (direction == JoyStickClass.STICK_DOWNLEFT) {
+                            if (lock[0] == 0 || lock[1] == 1) {
+                                if (lock[1] == 0) {
+                                    lock[1] = 1;
+                                }
 
-                            SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010","00000000000000000100100011000011", 27,26));
+                                SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010", "00000000000000000100100011000011", 27, 26));
 
-                            lock[0]++;
-                        }
-                    } else if (direction == JoyStickClass.STICK_LEFT) {
-                        if (lock[0] == 0 || lock[1] == 1) {
-                            if (lock[1]==0){
-                                lock[1]=1;
+                                lock[0]++;
                             }
-                            SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010","00000000000000000000000000000000", 27,26));
-                            lock[0]++;
-                        }
-                    } else if (direction == JoyStickClass.STICK_UPLEFT) {
-                        if (lock[0] == 0 || lock[1] == 1) {
-                            if (lock[1]==0){
-                                lock[1]=1;
+                        } else if (direction == JoyStickClass.STICK_LEFT) {
+                            if (lock[0] == 0 || lock[1] == 1) {
+                                if (lock[1] == 0) {
+                                    lock[1] = 1;
+                                }
+                                SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010", "00000000000000000000000000000000", 27, 26));
+                                lock[0]++;
                             }
+                        } else if (direction == JoyStickClass.STICK_UPLEFT) {
+                            if (lock[0] == 0 || lock[1] == 1) {
+                                if (lock[1] == 0) {
+                                    lock[1] = 1;
+                                }
 
-                            SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010","00000000000000000001011001000011", 27,26));
-                            lock[0]++;
+                                SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010", "00000000000000000001011001000011", 27, 26));
+                                lock[0]++;
+                            }
+                        } else if (direction == JoyStickClass.STICK_NONE) {
+                            if (lock[0] != 1) {
+                                SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000", "00000000000000000000000000000000", 27, 26));
+                                Log.i("Debug", "Stop");
+                                lock[0] = 0;
+                                lock[1] = 0;
+                            }
                         }
-                    } else if (direction == JoyStickClass.STICK_NONE) {
+                    } else if (arg1.getAction() == MotionEvent.ACTION_UP) {
+//                        PosX.setText("X:");
+//                        PosY.setText("Y:");
+
                         if (lock[0] != 1) {
-                            SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000000000000000000", 27,26));
-                            Log.i("Debug","Stop");
+                            SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000", "00000000000000000000000000000000", 27, 26));
+                            Log.i("Debug", "Stop");
                             lock[0] = 0;
                             lock[1] = 0;
                         }
+
+//                        Direction.setText("Direction:");
+
                     }
-                } else if (arg1.getAction() == MotionEvent.ACTION_UP) {
-                    PosX.setText("X:");
-                    PosY.setText("Y:");
-
-                    if (lock[0] != 1) {
-                        SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000","00000000000000000000000000000000", 27,26));
-                        Log.i("Debug","Stop");
-                        lock[0] = 0;
-                        lock[1] = 0;
-                    }
-
-                    Direction.setText("Direction:");
-
                 }
-                return true;
-            }
+                    return true;
+                }
+
         });
 
         if (!root.exists()) {
@@ -215,6 +216,27 @@ public class MainActivity extends AppCompatActivity
 
 //        LoadMessageRobot(mTcpClient);
 
+    }
+
+    public void onRadioButtonClickedMode(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+
+        // Check which radio button was clicked
+        switch(view.getId()) {
+            case R.id.rad_manuel:
+                if (checked)
+                    // Pirates are the best
+                    break;
+            case R.id.rad_assiste:
+                if (checked)
+                    // Ninjas rule
+                    break;
+            case R.id.rad_auto:
+                if (checked)
+                    // Ninjas rule
+                    break;
+        }
     }
 
     @Override

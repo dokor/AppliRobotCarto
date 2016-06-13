@@ -46,40 +46,27 @@
         android:id="@+id/Btn_TEST"
         android:layout_gravity="right"/>
 
-    </LinearLayout>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="left"
-        android:background="@color/common_action_bar_splitter"
-        >
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/PosY"
-        android:text="Y"
-        android:textColor="#444444"
-        android:textSize="20dp"
-        android:layout_gravity="left" />
-
-    <TextView
-        android:layout_gravity="left"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/PosX"
-        android:text="X"
-        android:textColor="#444444"
-        android:textSize="20dp"
-        />
-    <TextView
-        android:layout_gravity="left"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/Direction"
-        android:text="Direction"
-        android:textColor="#444444"
-        android:textSize="20dp"
-        />
+        android:layout_marginTop="25dp"
+        android:orientation="horizontal">
+        <RadioButton android:id="@+id/rad_manuel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Manuel"
+            android:onClick="onRadioButtonClickedMode"/>
+        <RadioButton android:id="@+id/rad_assiste"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Assist"
+            android:onClick="onRadioButtonClickedMode"/>
+        <RadioButton android:id="@+id/rad_auto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Auto"
+            android:onClick="onRadioButtonClickedMode"/>
+    </RadioGroup>
     </LinearLayout>
 </RelativeLayout>
