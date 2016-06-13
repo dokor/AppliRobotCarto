@@ -108,20 +108,23 @@ public class MainActivity extends AppCompatActivity
         layout_joystick.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View arg0, MotionEvent arg1) {
                 js.drawStick(arg1);
+                float Y;
+                float X;
                 if (TcpClient.mRun) {
                     if (arg1.getAction() == MotionEvent.ACTION_DOWN
                             || arg1.getAction() == MotionEvent.ACTION_MOVE) {
 //                        PosX.setText("X: " + String.valueOf(js.getX()));
 //                        PosY.setText("Y: " + String.valueOf(js.getY()));
 //                        Direction.setText("Direct: " + String.valueOf(js.get8Direction()));
-
+                        Y = js.getY();
+                        X = js.getX();
                         int direction = js.get8Direction();
                         if (direction == JoyStickClass.STICK_UP) {
                             if (lock[0] == 0 || lock[1] == 1) {
                                 if (lock[1] == 0) {
                                     lock[1] = 1;
                                 }
-                                SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000", "00000000000000000001011001000011", 27, 26));
+                                SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000", ConvertInvertData(Y,0), 27, 26));
                                 lock[0]++;
                             }
                         } else if (direction == JoyStickClass.STICK_UPRIGHT) {
@@ -130,7 +133,7 @@ public class MainActivity extends AppCompatActivity
                                     lock[1] = 1;
                                 }
 
-                                SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010", "00000000000000000001011001000011", 27, 26));
+                                SendMessage(Modif2ParametrePrecis(ConvertInvertData(X,1), ConvertInvertData(Y,0), 27, 26));
 
                                 lock[0]++;
                             }
@@ -139,7 +142,7 @@ public class MainActivity extends AppCompatActivity
                                 if (lock[1] == 0) {
                                     lock[1] = 1;
                                 }
-                                SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010", "00000000000000000000000000000000", 27, 26));
+                                SendMessage(Modif2ParametrePrecis(ConvertInvertData(X,1), "00000000000000000000000000000000", 27, 26));
                                 lock[0]++;
                             }
                         } else if (direction == JoyStickClass.STICK_DOWNRIGHT) {
@@ -147,7 +150,9 @@ public class MainActivity extends AppCompatActivity
                                 if (lock[1] == 0) {
                                     lock[1] = 1;
                                 }
-                                SendMessage(Modif2ParametrePrecis("00000000000000000011010011000010", "00000000000000000100100011000011", 27, 26));
+                                if (Y <=-150) Y=-150;
+                                X = -X;
+                                SendMessage(Modif2ParametrePrecis(ConvertInvertData(X,1), ConvertInvertData(Y,0), 27, 26));
                                 lock[0]++;
                             }
                         } else if (direction == JoyStickClass.STICK_DOWN) {
@@ -155,7 +160,8 @@ public class MainActivity extends AppCompatActivity
                                 lock[1] = 1;
                             }
                             if (lock[0] == 0 || lock[1] == 1) {
-                                SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000", "00000000000000000100100011000011", 27, 26));
+                                if (Y <=-150) Y=-150;
+                                SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000", ConvertInvertData(Y,0), 27, 26));
                                 lock[0]++;
                             }
                         } else if (direction == JoyStickClass.STICK_DOWNLEFT) {
@@ -163,8 +169,9 @@ public class MainActivity extends AppCompatActivity
                                 if (lock[1] == 0) {
                                     lock[1] = 1;
                                 }
-
-                                SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010", "00000000000000000100100011000011", 27, 26));
+                                if (Y <=-150) Y=-150;
+                                X = -X;
+                                SendMessage(Modif2ParametrePrecis(ConvertInvertData(X,1), ConvertInvertData(Y,0), 27, 26));
 
                                 lock[0]++;
                             }
@@ -173,7 +180,8 @@ public class MainActivity extends AppCompatActivity
                                 if (lock[1] == 0) {
                                     lock[1] = 1;
                                 }
-                                SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010", "00000000000000000000000000000000", 27, 26));
+//                                SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010", "00000000000000000000000000000000", 27, 26));
+                                SendMessage(Modif2ParametrePrecis(ConvertInvertData(X,1), "00000000000000000000000000000000", 27, 26));
                                 lock[0]++;
                             }
                         } else if (direction == JoyStickClass.STICK_UPLEFT) {
@@ -182,7 +190,7 @@ public class MainActivity extends AppCompatActivity
                                     lock[1] = 1;
                                 }
 
-                                SendMessage(Modif2ParametrePrecis("00000000000000000011010001000010", "00000000000000000001011001000011", 27, 26));
+                                SendMessage(Modif2ParametrePrecis(ConvertInvertData(X,1), ConvertInvertData(Y,0), 27, 26));
                                 lock[0]++;
                             }
                         } else if (direction == JoyStickClass.STICK_NONE) {
@@ -519,6 +527,41 @@ public class MainActivity extends AppCompatActivity
             Log.i("Debug","MAJ Data");
         }
     }
+
+    private String ConvertInvertData (float Pos,int mode){
+
+        float data;
+        String ResultatS,ResultatS_inv,AngS_inv;
+        char[] Resultat_char = new char[32];
+        int a;
+
+        if(mode == 0) {
+            data = -2 * Pos;
+        }
+        else {
+            data = -Pos/3;
+        }
+            ResultatS = Integer.toBinaryString(Float.floatToIntBits(data));
+            a = ResultatS.length();
+            if (a != 32) {
+                for (int b = 32 - a; b != 0; b--) {
+                    ResultatS = "0".concat(ResultatS);
+                }
+            }
+
+            ResultatS.getChars(24, 32, Resultat_char, 0);
+            ResultatS.getChars(16, 24, Resultat_char, 8);
+            ResultatS.getChars(8, 16, Resultat_char, 16);
+            ResultatS.getChars(0, 8, Resultat_char, 24);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 32; i++) {
+                sb.append(Resultat_char[i]);
+            }
+            ResultatS_inv = sb.toString();
+
+            return ResultatS_inv;
+    }
+
     private byte[] Modif2ParametrePrecis(String valeur,String valeur2,Integer index,Integer index2){
         String[] test =  LoadFile();
         byte[] Tab_Envoi = new byte[164];
