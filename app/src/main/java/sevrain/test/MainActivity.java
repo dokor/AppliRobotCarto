@@ -1,6 +1,8 @@
 package sevrain.test;
 
 import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -10,7 +12,9 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -19,8 +23,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -37,6 +43,7 @@ import java.nio.ByteBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static android.os.Process.killProcess;
 
 
 public class MainActivity extends AppCompatActivity
@@ -44,7 +51,8 @@ public class MainActivity extends AppCompatActivity
     private final static int ID_DIALOG = 0;
     private RelativeLayout layout_joystick;
     private TextView PosX, PosY, Direction;
-    private FloatingActionButton Phares, Connexion, Btn_TEST;
+    private FloatingActionButton Connexion, Btn_TEST, Info;
+    private Switch SwitchPhares, SwitchLidar;
     private JoyStickClass js;
     public TcpClient mTcpClient;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
@@ -70,17 +78,20 @@ public class MainActivity extends AppCompatActivity
         //Création du joystick + Position X/Y + Boutons
         layout_joystick = (RelativeLayout) findViewById(R.id.layout_joystick);
 
-        Phares = (FloatingActionButton) findViewById(R.id.Phares);
         Btn_TEST = (FloatingActionButton) findViewById(R.id.Btn_TEST);
+        Info = (FloatingActionButton) findViewById(R.id.Info);
         Connexion = (FloatingActionButton) findViewById(R.id.Connexion);
+        SwitchPhares = (Switch) findViewById(R.id.Switch_phare) ;
+        SwitchLidar = (Switch) findViewById(R.id.Switch_Lidar) ;
 
         Btn_TEST.setOnClickListener(Action_Btn_TEST);
-        Phares.setOnClickListener(AllumerPhares);
         Connexion.setOnClickListener(ConnexionRobot);
+        SwitchPhares.setOnClickListener(AllumerPhares);
+        SwitchLidar.setOnClickListener(OnOffLidar);
+        Info.setOnClickListener(AfficheInfo);
 
         Btn_TEST.setImageResource(R.drawable.ic_menu_slideshow);
         Connexion.setImageResource(R.drawable.ic_cloud_white_24dp);
-        Phares.setImageResource(R.drawable.ic_visibility_off_white_24dp);
 
         js = new JoyStickClass(getApplicationContext()
                 , layout_joystick, R.drawable.image_button);
@@ -295,9 +306,7 @@ public class MainActivity extends AppCompatActivity
     private OnClickListener Action_Btn_TEST = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            int[] m = null;
-            m = LoadMessageRobot(mTcpClient);
-            String cho = "test";
+
 
 
         }
@@ -306,16 +315,30 @@ public class MainActivity extends AppCompatActivity
     private OnClickListener AllumerPhares = new OnClickListener() {
         @Override
         public void onClick(View v) {
-
             if (TcpClient.mRun) {
                 if (k_phare==0){
                     SendMessage(ModifParametrePrecis("1110100000000011", 30));
-                    Phares.setImageResource(R.drawable.ic_visibility_off_white_24dp);
                     k_phare=1;
                 }
                 else{
                     SendMessage(ModifParametrePrecis("0000000000000000", 30));
-                    Phares.setImageResource(R.drawable.ic_visibility_white_24dp);
+                    k_phare=0;
+                }
+
+            }
+
+        }
+    };
+    private OnClickListener OnOffLidar = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (TcpClient.mRun) {
+                if (k_phare==0){
+                    SendMessage(ModifParametrePrecis("1110100000000011", 30));
+                    k_phare=1;
+                }
+                else{
+                    SendMessage(ModifParametrePrecis("0000000000000000", 30));
                     k_phare=0;
                 }
 
@@ -324,15 +347,16 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
+
     private OnClickListener ConnexionRobot = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(mTcpClient.mRun != true) {
+            if(!mTcpClient.mRun) {
                 new ConnectTask().startBackgroundPerform();
                 Connexion.setImageResource(R.drawable.ic_cloud_done_white_24dp);
 
             }
-            else if (mTcpClient.mRun == true) {
+            else if (mTcpClient.mRun) {
                 Log.i("Debug", "Connexion");
                 if (TcpClient.mRun) {
                     mTcpClient.stopClient();
@@ -343,10 +367,9 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
-    private OnClickListener Save = new OnClickListener() {
+    private OnClickListener AfficheInfo = new OnClickListener() {
         @Override
         public void onClick(View v) {
-
         }
     };
 
@@ -358,10 +381,6 @@ public class MainActivity extends AppCompatActivity
         box.setTitle("Informations");
         return box;
     }
-
-
-
-
 
     //Class pour connexion tcp
     public class ConnectTask extends AsyncTask<Void, ByteBuffer, TcpClient> {
@@ -380,10 +399,10 @@ public class MainActivity extends AppCompatActivity
                         public void run() {
                             ConnectTask performBackgroundTask = new ConnectTask();
                             try {
-                                if(mTcpClient==null) {
+                                if(mTcpClient == null) {
                                     performBackgroundTask.execute();
                                 }
-                                else if (TcpClient.mRun == false){
+                                else if (!TcpClient.mRun){
                                     killProcess();
                                 }
                                 else{
@@ -597,20 +616,6 @@ public class MainActivity extends AppCompatActivity
         }
         return null;
     }
-/*    private static byte[] fromHexString(final String encoded) {
-
-        if ((encoded.length() % 2) != 0)
-            throw new IllegalArgumentException("Input string must contain an even number of characters");
-
-        final byte[] result = new byte[encoded.length()/2];
-        final char enc[] = encoded.toCharArray();
-        for (int i = 0; i < enc.length; i += 2) {
-            StringBuilder curr = new StringBuilder(2);
-            curr.append(enc[i]).append(enc[i + 1]);
-            result[i/2] = (byte) Integer.parseInt(curr.toString(), 16);
-        }
-        return result;
-    }*/
 
     public String[] InverseMessageT_Transp(byte[] DonneeByte, String[] DonneeString){
         int j = 0;
@@ -840,20 +845,6 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
         return Tab_Inverse;
-    }
-
-    public void InitSettings(){
-        String[] choco = LoadFile();
-    }
-
-    public int[] LoadMessageRobot(TcpClient TCPC){
-        int[] test = null;
-        try {
-             test =  TCPC.GetMessage();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return test;
     }
 
     public void SaveDataInFileUNIT(String ligneAEcrire, FileOutputStream  fos)

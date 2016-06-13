@@ -9,18 +9,26 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-    </LinearLayout>
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Niveau de batterie : "
         android:id="@+id/Batterie" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Vitesse : "
+        android:id="@+id/Vitesse" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ConsigneAngulaire :"
+        android:id="@+id/ConsigneAngulaire" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/Batterie"
-        android:text="Température : "
-        android:id="@+id/Temperature" />
+        android:text="US : "
+        android:id="@+id/US" />
+    </LinearLayout>
 </LinearLayout>
