@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity
         js = new JoyStickClass(getApplicationContext()
                 , layout_joystick, R.drawable.image_button);
         js.setStickSize(75, 75);
-        js.setLayoutSize(400, 400);
+        js.setLayoutSize(350, 350);
         js.setLayoutAlpha(200);
         js.setStickAlpha(100);
         js.setOffset(35);
