@@ -250,15 +250,15 @@ public class MainActivity extends AppCompatActivity
         switch(view.getId()) {
             case R.id.rad_manuel:
                 if (checked)
-                    // Pirates are the best
+                    SendMessage(ModifParametrePrecis("00000010", 34));
                     break;
             case R.id.rad_assiste:
                 if (checked)
-                    // Ninjas rule
+                    SendMessage(ModifParametrePrecis("00000100", 34));
                     break;
             case R.id.rad_auto:
                 if (checked)
-                    // Ninjas rule
+                    SendMessage(ModifParametrePrecis("00000101", 34));
                     break;
         }
     }
@@ -347,7 +347,21 @@ public class MainActivity extends AppCompatActivity
         public void onClick(View v) {
             if (TcpClient.mRun) {
                 if (k_phare==0){
-                    SendMessage(ModifParametrePrecis("1110100000000011", 30));
+                    String[] test =  LoadFile();
+                    test[2] = "0000000100000000";
+                    test[5] = "0001100000000000";
+                    test[6] = "0010100100000000";
+                    test[7] = "0010000000000000";
+                    test[8] = "11101000000000110000000000000000";
+                    byte[] Tab_Envoi = new byte[24];
+                    int j=0;
+                    for (int i=0;i<9;i++){
+                        byte[] test1 = new byte[fromBinaryString(test[i]).length];
+                        test1 = fromBinaryString(test[i]);
+                        System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+                        j = j+test1.length;
+                    }
+                    SendMessage(Tab_Envoi);
                     k_phare=1;
                 }
                 else{
