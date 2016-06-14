@@ -14,8 +14,8 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main">
     <android.support.v7.widget.ContentFrameLayout
-        android:layout_width="500dp"
-        android:layout_height="500dp"
+        android:layout_width="450dp"
+        android:layout_height="450dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:background="@color/colorPrimaryDarkLighter">
@@ -23,20 +23,24 @@
         <RelativeLayout
             android:id="@+id/layout_Carto"
             android:layout_margin="25dp"
-            android:layout_height="450dp"
-            android:layout_width="450dp"
+            android:layout_height="400dp"
+            android:layout_width="400dp"
             android:background="@color/colorPrimaryLighter">
-            <View
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart"
                 android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:rotation="90"
-                android:layout_centerVertical="true"
-                android:background="@android:color/black" />
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_centerVertical="true"
-                android:background="@android:color/black" />
+                android:layout_height="match_parent" />
+            <!--<View-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="2dp"-->
+                <!--android:rotation="90"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:background="@android:color/black" />-->
+            <!--<View-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="2dp"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:background="@android:color/black" />-->
         </RelativeLayout>
     </android.support.v7.widget.ContentFrameLayout>
 

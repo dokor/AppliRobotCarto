@@ -3,6 +3,9 @@ package sevrain.test;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,10 +28,20 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,6 +54,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -57,6 +71,7 @@ public class MainActivity extends AppCompatActivity
     private JoyStickClass js;
     private Paint paint = new Paint();
     public TcpClient mTcpClient;
+    private LineChart chartCarto;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
     private int k_phare =0;
@@ -65,6 +80,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
 
 
@@ -80,6 +96,11 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+        chartCarto = (LineChart) findViewById(R.id.chart);
+
+
+
         //Création du joystick + Position X/Y + Boutons
         layout_joystick = (RelativeLayout) findViewById(R.id.layout_joystick);
         layout_Carto = (RelativeLayout) findViewById(R.id.layout_Carto);
@@ -90,7 +111,7 @@ public class MainActivity extends AppCompatActivity
         SwitchPhares = (Switch) findViewById(R.id.Switch_phare) ;
         SwitchLidar = (Switch) findViewById(R.id.Switch_Lidar) ;
 
-        Btn_TEST.setOnClickListener(Action_Btn_TEST);
+        Btn_TEST.setOnClickListener(AffichageCarto);
         Connexion.setOnClickListener(ConnexionRobot);
         SwitchPhares.setOnClickListener(AllumerPhares);
         SwitchLidar.setOnClickListener(OnOffLidar);
@@ -109,7 +130,12 @@ public class MainActivity extends AppCompatActivity
 
         final int[] lock = {0,0};
 
-        
+//        ImageView imageView = new ImageView(getApplicationContext());
+//        Bitmap mainImage = BitmapFactory.decodeResource(getResources(), R.drawable.);
+//        mainImage.setPixel(50,50,50);
+//        imageView.setImageBitmap( mainImage );
+//        layout_Carto.addView( imageView );
+
         layout_joystick.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View arg0, MotionEvent arg1) {
                 js.drawStick(arg1);
@@ -118,8 +144,8 @@ public class MainActivity extends AppCompatActivity
                 if (TcpClient.mRun) {
                     if (arg1.getAction() == MotionEvent.ACTION_DOWN
                             || arg1.getAction() == MotionEvent.ACTION_MOVE) {
-                        PosX.setText("X: " + String.valueOf(js.getX()));
-                        PosY.setText("Y: " + String.valueOf(js.getY()));
+//                        PosX.setText("X: " + String.valueOf(js.getX()));
+//                        PosY.setText("Y: " + String.valueOf(js.getY()));
 //                        Direction.setText("Direct: " + String.valueOf(js.get8Direction()));
                         Y = js.getY();
                         X = js.getX();
@@ -339,6 +365,77 @@ public class MainActivity extends AppCompatActivity
                 }
 
             }
+
+        }
+    };
+
+    private OnClickListener AffichageCarto = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            chartCarto.invalidate();
+//        LimitLine ll = new LimitLine(3, "Critical Blood Pressure");
+//        ll.setLineColor(Color.RED);
+//        ll.setLineWidth(4f);
+//        ll.setTextColor(Color.BLACK);
+//        ll.setTextSize(12f);
+//        leftAxis.addLimitLine(ll);
+
+            //Entry entry = new Entry(float val, int angle);
+            ArrayList<Entry> valsComp1 = new ArrayList<Entry>();
+//        Entry c1e1 = new Entry(100.000f, 0); // 0 == quarter 1
+//        valsComp1.add(c1e1);
+            Entry c1e1 = new Entry(5, 1);valsComp1.add(c1e1);
+            Entry c1e2 = new Entry(5, 11);valsComp1.add(c1e2);
+            Entry c1e3 = new Entry(-5, 11);valsComp1.add(c1e3);
+            Entry c1e4 = new Entry(-5, 1);valsComp1.add(c1e4);
+
+            LineDataSet setComp1 = new LineDataSet(valsComp1, "Chemin");
+            setComp1.setAxisDependency(YAxis.AxisDependency.LEFT);
+            // use the interface ILineDataSet
+            ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
+            dataSets.add(setComp1);
+
+            ArrayList<String> xVals = new ArrayList<String>();
+            for (int i = -6; i < 7; i++) {
+                xVals.add(String.valueOf(i));
+            }
+//        xVals.add("1.Q"); xVals.add("2.Q"); xVals.add("3.Q"); xVals.add("4.Q");
+            LineData data = new LineData(xVals, dataSets);
+//        LineDataSet dataSet = LineDataSet(ArrayList<Entry> yVals, String label);
+//        LineData data = LineData(ArrayList<String> xVals, dataSet);
+            chartCarto.setData(data);
+
+
+            YAxis leftAxis = chartCarto.getAxisLeft();
+            YAxis RightAxis = chartCarto.getAxisRight();
+            XAxis XAxis = chartCarto.getXAxis();
+
+            leftAxis.setEnabled(true);
+
+            leftAxis.setDrawAxisLine(true);
+            leftAxis.setDrawGridLines(true);
+            leftAxis.setDrawZeroLine(true);
+            leftAxis.setDrawTopYLabelEntry(true);
+            leftAxis.setDrawAxisLine(true);
+
+            leftAxis.setDrawLabels(false);
+            RightAxis.setDrawLabels(false);
+            XAxis.setDrawLabels(false);
+
+            RightAxis.setDrawZeroLine(true);
+            XAxis.setPosition(com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTH_SIDED);
+
+            YAxis left = chartCarto.getAxisLeft();
+            left.setDrawLabels(false); // no axis labels
+            left.setDrawAxisLine(true); // no axis line
+            left.setDrawGridLines(false); // no grid lines
+            left.setDrawZeroLine(true); // draw a zero line
+            left.setZeroLineWidth(2);
+
+            chartCarto.animateXY(50, 2500);
+            chartCarto.setDescription("TOO EASY, GG WP");
+            chartCarto.invalidate();
+            chartCarto.notifyDataSetChanged();
 
         }
     };

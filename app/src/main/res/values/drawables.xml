@@ -6,4 +6,6 @@
     <item name="ic_menu_share" type="drawable">@android:drawable/ic_menu_share</item>
     <item name="ic_menu_send" type="drawable">@android:drawable/ic_menu_send</item>
     <item name="stick_fait_maisonItem" type="drawable">@drawable/ic_fiber_manual_record_red_a400_48dp</item>
+    <item name="cartographieLGB" type="drawable">@drawable/cartographie</item>
+
 </resources>
