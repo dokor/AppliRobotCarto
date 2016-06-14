@@ -3,6 +3,7 @@ package sevrain.test;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -49,11 +50,12 @@ import static android.os.Process.killProcess;
 public class MainActivity extends AppCompatActivity
                 implements NavigationView.OnNavigationItemSelectedListener {
     private final static int ID_DIALOG = 0;
-    private RelativeLayout layout_joystick;
+    private RelativeLayout layout_joystick, layout_Carto;
     private TextView PosX, PosY, Direction;
     private FloatingActionButton Connexion, Btn_TEST, Info;
     private Switch SwitchPhares, SwitchLidar;
     private JoyStickClass js;
+    private Paint paint = new Paint();
     public TcpClient mTcpClient;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
@@ -63,6 +65,9 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -77,6 +82,7 @@ public class MainActivity extends AppCompatActivity
 
         //Création du joystick + Position X/Y + Boutons
         layout_joystick = (RelativeLayout) findViewById(R.id.layout_joystick);
+        layout_Carto = (RelativeLayout) findViewById(R.id.layout_Carto);
 
         Btn_TEST = (FloatingActionButton) findViewById(R.id.Btn_TEST);
         Info = (FloatingActionButton) findViewById(R.id.Info);
@@ -94,12 +100,11 @@ public class MainActivity extends AppCompatActivity
         Connexion.setImageResource(R.drawable.ic_cloud_white_24dp);
 
         js = new JoyStickClass(getApplicationContext()
-                , layout_joystick, R.drawable.image_button);
-        js.setStickSize(75, 75);
-        js.setLayoutSize(350, 350);
-        js.setLayoutAlpha(200);
-        js.setStickAlpha(100);
-        js.setOffset(35);
+                , layout_joystick, R.drawable.stick_fait_maisonItem);
+        js.setStickSize(100, 100);
+        js.setLayoutSize(300, 300);
+//        js.setStickAlpha(150);
+        js.setOffset(32);
         js.setMinimumDistance(25);
 
         final int[] lock = {0,0};
@@ -113,8 +118,8 @@ public class MainActivity extends AppCompatActivity
                 if (TcpClient.mRun) {
                     if (arg1.getAction() == MotionEvent.ACTION_DOWN
                             || arg1.getAction() == MotionEvent.ACTION_MOVE) {
-//                        PosX.setText("X: " + String.valueOf(js.getX()));
-//                        PosY.setText("Y: " + String.valueOf(js.getY()));
+                        PosX.setText("X: " + String.valueOf(js.getX()));
+                        PosY.setText("Y: " + String.valueOf(js.getY()));
 //                        Direction.setText("Direct: " + String.valueOf(js.get8Direction()));
                         Y = js.getY();
                         X = js.getX();
