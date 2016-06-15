@@ -10,4 +10,10 @@
         android:topRightRadius="100dp"/>
     <stroke android:width="10px"
         android:color="@color/colorPrimaryDarkLighter" />
+    <shape xmlns:android="http://schemas.android.com/apk/res/android"
+        android:shape="oval">
+        <solid android:color="@color/colorPrimBlue"
+            android:width="5dp"
+            android:height="5dp"/>
+    </shape>
 </shape>

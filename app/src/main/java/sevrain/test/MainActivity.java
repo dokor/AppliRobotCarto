@@ -60,7 +60,7 @@ import java.util.TimerTask;
 
 import static android.os.Process.killProcess;
 
-
+//https://github.com/PhilJay/MPAndroidChart/wiki/YAxis
 public class MainActivity extends AppCompatActivity
                 implements NavigationView.OnNavigationItemSelectedListener {
     private final static int ID_DIALOG = 0;
@@ -433,7 +433,7 @@ public class MainActivity extends AppCompatActivity
             left.setZeroLineWidth(2);
 
             chartCarto.animateXY(50, 2500);
-            chartCarto.setDescription("TOO EASY, GG WP");
+            chartCarto.setDescription("Cartographie Alexou");
             chartCarto.invalidate();
             chartCarto.notifyDataSetChanged();
 
