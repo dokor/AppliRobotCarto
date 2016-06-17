@@ -114,11 +114,11 @@ public class MainActivity extends AppCompatActivity
         SwitchPhares = (Switch) findViewById(R.id.Switch_phare) ;
         SwitchLidar = (Switch) findViewById(R.id.Switch_Lidar) ;
 
-        Btn_TEST.setOnClickListener(AffichageCarto);
+        Btn_TEST.setOnClickListener(Action_Btn_TEST);
         Connexion.setOnClickListener(ConnexionRobot);
         SwitchPhares.setOnClickListener(AllumerPhares);
         SwitchLidar.setOnClickListener(OnOffLidar);
-        Info.setOnClickListener(AfficheInfo);
+        Info.setOnClickListener(AffichageCarto);
 
         Btn_TEST.setImageResource(R.drawable.ic_menu_slideshow);
         Connexion.setImageResource(R.drawable.ic_cloud_white_24dp);
@@ -385,10 +385,7 @@ public class MainActivity extends AppCompatActivity
                     angleDirection[i][k] = i+k;
                 }
             }
-            int[] CordCartesien = angleDirection[0];
-            //int[][] CordCartesien = PassageCartesien(angleDirection);
-
-            //CreaCarto(CordCartesien);
+            CreaCarto(angleDirection);
         }
     };
 
@@ -403,27 +400,27 @@ public class MainActivity extends AppCompatActivity
     }
     private void CreaCarto(int[][] angledirection){
 
-        int[] Xvalues = angledirection[0];
-        int[] Yvalues = angledirection[1];
+        int[][] CoordXY= PassageCartesien(angledirection);
+        int[] Xvalues = CoordXY[0];
+        int[] Yvalues = CoordXY[1];
 
-        ArrayList<Entry> valsComp1 = new ArrayList<Entry>();
+        ArrayList<Entry> valsX = new ArrayList<Entry>();
+        int k = 0;
+        for (int X : Xvalues ) {
+            Entry c1e1 = new Entry(X, k); valsX.add(c1e1);
+            k++;
+        }
+        LineDataSet setComp1 = new LineDataSet(valsX, "Chemin");
 
-        Entry c1e1 = new Entry(5, 1);valsComp1.add(c1e1);
-        Entry c1e2 = new Entry(5, 11);valsComp1.add(c1e2);
-        Entry c1e3 = new Entry(-5, 11);valsComp1.add(c1e3);
-        Entry c1e4 = new Entry(-5, 1);valsComp1.add(c1e4);
-
-        LineDataSet setComp1 = new LineDataSet(valsComp1, "Chemin");
         setComp1.setAxisDependency(YAxis.AxisDependency.LEFT);
-
         ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
         dataSets.add(setComp1);
-        ArrayList<String> xVals = new ArrayList<String>();
-        for (int i = -6; i < 7; i++) {
-            xVals.add(String.valueOf(i));
+        ArrayList<String> Yvals = new ArrayList<String>();
+        for (int Y : Yvalues ) {
+            Yvals.add(String.valueOf(Y));
         }
-        LineData data = new LineData(xVals, dataSets);
 
+        LineData data = new LineData(Yvals, dataSets);
         chartCarto.setData(data);
         ConfigCarto(chartCarto);
         chartCarto.invalidate();
@@ -676,7 +673,7 @@ public class MainActivity extends AppCompatActivity
                     SaveDataInFile(DonneeTabPropre, file);
                     Log.i("Debug", "MAJ Data");
                 }
-                if (DevinTypeMessage(T_Transport) == 41) {
+                else if (DevinTypeMessage(T_Transport) == 41) {
                     String[] DonneeTabPropre = new String[1206];
                     DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,1);
                     SaveDataInFile(DonneeTabPropre, fileL);
