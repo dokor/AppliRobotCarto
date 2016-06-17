@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity
     private LineChart chartCarto;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
+    public File fileL = new File(root + "/DataLidar2.csv");
+    public File fileRG = new File(root + "/ReferencesReg.csv");
     private int k_phare =0;
 
     @Override
@@ -260,6 +262,7 @@ public class MainActivity extends AppCompatActivity
         try {
             if(!file.exists()) {
                 FileWriter writer = new FileWriter(file);
+                FileWriter writerL = new FileWriter(fileL);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -347,8 +350,10 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onClick(View v) {
 
-
-
+            String[] DataLidar = new String[406];
+            DataLidar = LoadFile(fileL);
+            DecoupeInverseDataLidar(DataLidar);
+            int i=0;
         }
     };
 
@@ -459,7 +464,7 @@ public class MainActivity extends AppCompatActivity
         public void onClick(View v) {
             if (TcpClient.mRun) {
                 if (k_phare==0){
-                    String[] test =  LoadFile();
+                    String[] test =  LoadFile(file);
                     test[2] = "0000000100000000";
                     test[5] = "0001100000000000";
                     test[6] = "0010100100000000";
@@ -477,7 +482,22 @@ public class MainActivity extends AppCompatActivity
                     k_phare=1;
                 }
                 else{
-                    SendMessage(ModifParametrePrecis("0000000000000000", 30));
+                    String[] test =  LoadFile(file);
+                    test[2] = "0000000100000000";
+                    test[5] = "0001100000000000";
+                    test[6] = "0010100100000000";
+                    test[7] = "0010010100000000";
+                    test[8] = "00000001000000000000000000000000";
+                    byte[] Tab_Envoi = new byte[24];
+                    int j=0;
+                    for (int i=0;i<9;i++){
+                        byte[] test1 = new byte[fromBinaryString(test[i]).length];
+                        test1 = fromBinaryString(test[i]);
+                        System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+                        j = j+test1.length;
+                    }
+                    SendMessage(Tab_Envoi);
+                    mTcpClient.bf.clear();
                     k_phare=0;
                 }
 
@@ -546,7 +566,6 @@ public class MainActivity extends AppCompatActivity
                                 }
                                 else{
                                     updateData(mTcpClient.bf);
-                                    Log.i("Debug","update");
                                 }
          //                           Log.i("Debug","execute");
                             } catch (Exception e) {
@@ -592,10 +611,10 @@ public class MainActivity extends AppCompatActivity
                     if(VerifIntegriteHeader(T_Transport)){
                         //Header OK
                         DevinTypeMessage(T_Transport);
-                        DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre);
-                        SaveDataInFile(DonneeTabPropre);
+                        DonneeTabPropre = InverseMessageT_Transp(resultat,DonneeTabPropre,0);
+                        SaveDataInFile(DonneeTabPropre,file);
                         Log.i("Debug","MAJ");
-                        String[] test =  LoadFile();
+                        String[] test =  LoadFile(file);
                         byte[] Tab_Envoi = new byte[164];
                         int j=0;
 
@@ -628,41 +647,49 @@ public class MainActivity extends AppCompatActivity
     protected void updateData(ByteBuffer message){
         byte[] resultat = new byte[164];
         //Remplissage avec les valeurs du message recu
-        resultat = message.array();
-        //Creation du Tableau de string
-        String[] T_Transport = new String[16];
-        String[] DonneeTabPropre = new String[64];
-        int i = 0;
-        int k=0;
-        while (resultat[i] != -86)
-        {
-            i++;
-        }
-        k = i;
-        //Remplissage du tableau de string avec les valeurs en Hexa de resultat
-        for (int j=0;j<16;j++){
-            T_Transport[j]= String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
-            i++;
-        }
-        //Inversion des données du tableau selon methode spécial Header
-        T_Transport = InverseData(T_Transport);
-        byte[] resultat2 = new byte[(resultat.length)-k];
-        System.arraycopy(resultat,k,resultat2,0,(resultat.length)-k);
+        if (message != null) {
+            resultat = message.array();
+            //Creation du Tableau de string
+            String[] T_Transport = new String[16];
+            int i = 0;
+            int k = 0;
+            while (resultat[i] != -86) {
+                i++;
+            }
+            k = i;
+            //Remplissage du tableau de string avec les valeurs en Hexa de resultat
+            for (int j = 0; j < 16; j++) {
+                T_Transport[j] = String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+                i++;
+            }
+            //Inversion des données du tableau selon methode spécial Header
+            T_Transport = InverseData(T_Transport);
+            byte[] resultat2 = new byte[(resultat.length) - k];
+            System.arraycopy(resultat, k, resultat2, 0, (resultat.length) - k);
 
-        //Vérification du header, afin d'etre sur de son intégrité
-        if(VerifIntegriteHeader(T_Transport)){
-            //Header OK
-            DevinTypeMessage(T_Transport);
-            DonneeTabPropre = InverseMessageT_Transp(resultat2,DonneeTabPropre);
-            SaveDataInFile(DonneeTabPropre);
-            Log.i("Debug","MAJ Data");
+            //Vérification du header, afin d'etre sur de son intégrité
+            if (VerifIntegriteHeader(T_Transport)) {
+                //Header OK
+                if (DevinTypeMessage(T_Transport) == 2) {
+                    String[] DonneeTabPropre = new String[64];
+                    DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,0);
+                    SaveDataInFile(DonneeTabPropre, file);
+                    Log.i("Debug", "MAJ Data");
+                }
+                if (DevinTypeMessage(T_Transport) == 41) {
+                    String[] DonneeTabPropre = new String[1206];
+                    DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,1);
+                    SaveDataInFile(DonneeTabPropre, fileL);
+                    Log.i("Debug", "MAJ Lidar");
+                }
+            }
         }
     }
 
     private String ConvertInvertData (float Pos,int mode){
 
         float data;
-        String ResultatS,ResultatS_inv,AngS_inv;
+        String ResultatS,ResultatS_inv;
         char[] Resultat_char = new char[32];
         int a;
 
@@ -694,22 +721,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     private byte[] Modif2ParametrePrecis(String valeur,String valeur2,Integer index,Integer index2){
-        String[] test =  LoadFile();
+        String[] test =  LoadFile(file);
         byte[] Tab_Envoi = new byte[164];
         int j=0;
         test[index] = valeur;
         test[index2] = valeur2;
-        for (int i=0;i<64;i++){
+        for (int i = 0; i < 64; i++) {
             byte[] test1 = new byte[fromBinaryString(test[i]).length];
             test1 = fromBinaryString(test[i]);
-            System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
-            j = j+test1.length;
+            System.arraycopy(test1, 0, Tab_Envoi, j, test1.length);
+            j = j + test1.length;
         }
         return Tab_Envoi;
     }
 
     private byte[] ModifParametrePrecis(String valeur, Integer index){
-        String[] test =  LoadFile();
+        String[] test =  LoadFile(file);
         byte[] Tab_Envoi = new byte[164];
         int j=0;
         test[index] = valeur;
@@ -791,80 +818,174 @@ public class MainActivity extends AppCompatActivity
         return null;
     }
 
-    public String[] InverseMessageT_Transp(byte[] DonneeByte, String[] DonneeString){
+    public String[] InverseMessageT_Transp(byte[] DonneeByte, String[] DonneeString,int mode){
         int j = 0;
         int k = 0;
+        String[] tab = new String[3];
+        String [] tab2 = new String[2406];
+        switch (mode){
+            case(0) :
+                for (int i=0;i<2;i++){
+                    DecoupeInverseData4(DonneeByte, DonneeString, j,k);
+                    j=j+4;
+                    k++;
+                }
+                for (int i=0;i<4;i++) {
+                    DecoupeInverseData2(DonneeByte, DonneeString,j,k);
+                    j=j+2;
+                    k++;
+                }
+                for (int i=0;i<20;i++) {
+                    DecoupeInverseData2(DonneeByte, DonneeString, j,k);
+                    j=j+2;
+                    k++;
+                }
+                for (int i=0;i<4;i++){
+                    DecoupeInverseData4(DonneeByte, DonneeString, j,k);
+                    j=j+4;
+                    k++;
+                }
+                for (int i=0;i<3;i++) {
+                    DecoupeInverseData2(DonneeByte, DonneeString, j,k);
+                    j=j+2;
+                    k++;
+                }
+                for (int i=0;i<2;i++){
+                    DonneeString[k] = String.format("%8s", Integer.toBinaryString(DonneeByte[j] & 0xFF)).replace(' ', '0');
+                    if(DonneeString[k].length() == 1) {
+                        DonneeString[k] = "0".concat(DonneeString[k]);
+                    }
+                    j++;
+                    k++;
+                }
+                for (int i=0;i<4;i++) {
+                    DecoupeInverseData2(DonneeByte, DonneeString, j,k);
+                    j=j+2;
+                    k++;
+                }
+                for (int i=0;i<2;i++){
+                    DonneeString[k] = String.format("%8s", Integer.toBinaryString(DonneeByte[j] & 0xFF)).replace(' ', '0');
+                    if(DonneeString[k].length() == 1) {
+                        DonneeString[k] = "0".concat(DonneeString[k]);
+                    }
+                    j++;
+                    k++;
+                }
+                for (int i=0;i<3;i++){
+                    DecoupeInverseData2(DonneeByte, DonneeString, j,k);
+                    j=j+2;
+                    k++;
+                }
+                for (int i=0;i<2;i++){
+                    DecoupeInverseData4(DonneeByte, DonneeString, j,k);
+                    j=j+4;
+                    k++;
+                }
+                for (int i=0;i<6;i++) {
+                    DecoupeInverseData2(DonneeByte, DonneeString, j,k);
+                    j=j+2;
+                    k++;
+                }
+                for (int i=0;i<12;i++){
+                    DecoupeInverseData4(DonneeByte, DonneeString, j,k);
+                    j=j+4;
+                    k++;
+                }
+                break;
+            case(1) :
+                for (int i=0;i<2;i++){
+                    DecoupeInverseData4(DonneeByte, DonneeString, j,k);
+                    j=j+4;
+                    k++;
+                }
 
-        for (int i=0;i<2;i++){
-            DecoupeInverseData4(DonneeByte, DonneeString, j,k);
-            j=j+4;
-            k++;
-        }
-        for (int i=0;i<4;i++) {
-            DecoupeInverseData2(DonneeByte, DonneeString,j,k);
-            j=j+2;
-            k++;
-        }
-        for (int i=0;i<20;i++) {
-            DecoupeInverseData2(DonneeByte, DonneeString, j,k);
-            j=j+2;
-            k++;
-        }
-        for (int i=0;i<4;i++){
-            DecoupeInverseData4(DonneeByte, DonneeString, j,k);
-            j=j+4;
-            k++;
-        }
-        for (int i=0;i<3;i++) {
-            DecoupeInverseData2(DonneeByte, DonneeString, j,k);
-            j=j+2;
-            k++;
-        }
-        for (int i=0;i<2;i++){
-            DonneeString[k] = String.format("%8s", Integer.toBinaryString(DonneeByte[j] & 0xFF)).replace(' ', '0');
-            if(DonneeString[k].length() == 1) {
-                DonneeString[k] = "0".concat(DonneeString[k]);
-            }
-            j++;
-            k++;
-        }
-        for (int i=0;i<4;i++) {
-            DecoupeInverseData2(DonneeByte, DonneeString, j,k);
-            j=j+2;
-            k++;
-        }
-        for (int i=0;i<2;i++){
-            DonneeString[k] = String.format("%8s", Integer.toBinaryString(DonneeByte[j] & 0xFF)).replace(' ', '0');
-            if(DonneeString[k].length() == 1) {
-                DonneeString[k] = "0".concat(DonneeString[k]);
-            }
-            j++;
-            k++;
-        }
-        for (int i=0;i<3;i++){
-            DecoupeInverseData2(DonneeByte, DonneeString, j,k);
-            j=j+2;
-            k++;
-        }
-        for (int i=0;i<2;i++){
-            DecoupeInverseData4(DonneeByte, DonneeString, j,k);
-            j=j+4;
-            k++;
-        }
-        for (int i=0;i<6;i++) {
-            DecoupeInverseData2(DonneeByte, DonneeString, j,k);
-            j=j+2;
-            k++;
-        }
-        for (int i=0;i<12;i++){
-            DecoupeInverseData4(DonneeByte, DonneeString, j,k);
-            j=j+4;
-            k++;
+                for (int i=0;i<4;i++) {
+                    DecoupeInverseData2(DonneeByte, DonneeString,j,k);
+                    j=j+2;
+                    k++;
+                }
+
+                int l;
+                for (l=0;l<400;l++){
+                    for (int m=0;m<3;m++) {
+                        tab[m] = DecoupeInverseData2(DonneeByte, tab2, j, k);
+                        j = j + 2;
+                    }
+                    DonneeString[k] = tab[0].concat(";").concat(tab[1]).concat(";").concat(tab[2]);
+                    k++;
+
+                }
+
+                break;
         }
         return DonneeString;
     }
 
-    public String[] DecoupeInverseData2(byte [] DonneeByte,String[] Donnees,int Indice,int k){
+    public int [][] DecoupeInverseDataLidar(String[] Data){
+        String[] s,sI;
+        int a;
+        sI = new String[3];
+        char[] Resultat_char = new char[16];
+        int [] Qua = new int[400], Ang = new int[400],Dis = new int[400];
+        int m=0,sup=0;
+        boolean Ok = false;
+
+            for(int i=6;i<406;i++){
+                    for (int k=0;k<3;k++) {
+                        s = Data[i].split(";");
+                        s[k].getChars(0, 8, Resultat_char, 8);
+                        s[k].getChars(8, 16, Resultat_char, 0);
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(Resultat_char[0]);
+                        sb.append(Resultat_char[1]);
+                        sb.append(Resultat_char[2]);
+                        sb.append(Resultat_char[3]);
+                        sb.append(Resultat_char[4]);
+                        sb.append(Resultat_char[5]);
+                        sb.append(Resultat_char[6]);
+                        sb.append(Resultat_char[7]);
+                        sb.append(Resultat_char[8]);
+                        sb.append(Resultat_char[9]);
+                        sb.append(Resultat_char[10]);
+                        sb.append(Resultat_char[11]);
+                        sb.append(Resultat_char[12]);
+                        sb.append(Resultat_char[13]);
+                        sb.append(Resultat_char[14]);
+                        sb.append(Resultat_char[15]);
+                        if(k==0){
+                            Ok = false;
+                            a= Integer.parseInt(sb.toString(), 2);
+                            if(a!=0){
+                                Qua[i-6-sup] = a;
+                                Ok = true ;
+                            }
+                            else{
+                                sup++;
+                            }
+                        }
+                        else{
+                            if(Ok == true){
+                                if(k == 1){
+                                    Ang[i-6-sup]= Integer.parseInt(sb.toString(), 2)/64;
+                                    }
+                                else {
+                                   Dis[i-6-sup]= Integer.parseInt(sb.toString(), 2)/4;
+                                }
+                            }
+                        }
+                    }
+                }
+        int[][] Ang_Dis = new int[2][400-sup];
+
+        for (int i=0;i<400-sup;i++) {
+            Ang_Dis[0][i] = Ang[i];
+            Ang_Dis[1][i] = Dis[i];
+        }
+
+        return Ang_Dis;
+    }
+
+    public String DecoupeInverseData2(byte [] DonneeByte,String[] Donnees,int Indice,int k){
         String[] Tab2o_inverse = new String[2];
         String Mot2o;
         int j = 0;
@@ -879,10 +1000,10 @@ public class MainActivity extends AppCompatActivity
 
         Mot2o = Tab2o_inverse[0].concat(Tab2o_inverse[1]);
         Donnees[k]=Mot2o;
-        return Tab2o_inverse;
+        return Mot2o;
     }
 
-    public String[] DecoupeInverseData4(byte [] DonneeByte,String[] Donnees,int Indice,int k){
+    public String DecoupeInverseData4(byte [] DonneeByte,String[] Donnees,int Indice,int k){
         String[] Tab4o_inverse = new String[4];
         int j = 0;
         String Mot4o;
@@ -896,9 +1017,9 @@ public class MainActivity extends AppCompatActivity
         }
         Mot4o = Tab4o_inverse[0].concat(Tab4o_inverse[1]).concat(Tab4o_inverse[2]).concat(Tab4o_inverse[3]);
         Donnees[k]= Mot4o;
-
-        return Tab4o_inverse;
+        return Mot4o;
     }
+
     public boolean VerifIntegriteHeader(String[] TabAAnalyser){
         String HeaderAttendu1 = "55aa55aa";
         String HeaderAttendu2 = "65ba65ba";
@@ -941,40 +1062,38 @@ public class MainActivity extends AppCompatActivity
         return Stringcomp;
     }
 
-    public String DevinTypeMessage(String[] tabStringADecoup)
+    public int DevinTypeMessage(String[] tabStringADecoup)
     {
-        String TabHeader = new String();
-        for(int i = 0; i<4; i++){
-            TabHeader += tabStringADecoup[i];
-        }
-        String TabHeaderNum = TabHeader.toString();
-        switch(TabHeaderNum) {
+        int Msg=0;
+        String TypeMessage = new String();
+        TypeMessage = tabStringADecoup[8].concat(tabStringADecoup[9]);
+        switch(TypeMessage) {
             //TYPE_MSG_DE_SERVICE
-            case "1":
-                TabHeader = "TYPE_MSG_DE_SERVICE";
+            case "01":
+                Msg = 1;
                 break;
             //TYPE_MSG_REGLAGE
-            case "2" :
-                TabHeader = "TYPE_MSG_REGLAGE";
+            case "02" :
+                Msg = 2;
                 break;
             //TYPE_MSG_LONG
-            case "40" :
-                TabHeader = "TYPE_MSG_LONG";
+            case "028" :
+                Msg = 40;
                 break;
             //TYPE_MSG_SCAN
-            case "41" :
-                TabHeader = "TYPE_MSG_SCAN";
+            case "029" :
+                Msg = 41;
                 break;
             //TYPE_MSG_COMPAS_XY
-            case "42" :
-                TabHeader = "TYPE_MSG_COMPAS_XY";
+            case "030" :
+                Msg = 42;
                 break;
             //Other
             default:
-                TabHeader = "ERROR DEFAULT";
+                Msg = 0;
                 break;
         }
-        return TabHeader;
+        return Msg;
     }
 
     public String[] InverseData(String[] Tab){
@@ -1034,7 +1153,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void SaveDataInFile(String[] data)
+    public void SaveDataInFile(String[] data,File file)
     {
         FileOutputStream fos = null;
         try
@@ -1054,7 +1173,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public String[] LoadFile()
+    public String[] LoadFile(File file)
     {
         FileInputStream fis = null;
         try
@@ -1068,12 +1187,12 @@ public class MainActivity extends AppCompatActivity
         BufferedReader br = new BufferedReader(isr);
 
         int nbr_lignes=0;
-        String[] array = new String[64];
+        String[] array = new String[406];
         String line;
         int i = 0;
         try
         {
-            while ((line = br.readLine()) != null)
+            while (((line = br.readLine()) != null) && ((i) != 406))
             {
                 nbr_lignes++;
                 array[i] = line;

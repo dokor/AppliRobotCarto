@@ -21,7 +21,7 @@ public class TcpClient {
     public static boolean mRun = false;
     private OnMessageReceived mMessageListener = null;
 
-    private int bufferSize = 5000;
+    private int bufferSize = 20000;
     public ByteBuffer bf;
     private BufferedInputStream inFromServer;
     private BufferedOutputStream outFromClient;
@@ -121,7 +121,7 @@ public class TcpClient {
                         mMessageListener.messageReceived(bf);
                         mMessageListener.updateBatteryLvl();
                     }
-                    bf = null;
+                    bf.clear();
                 }
             }
             catch (Exception e) {
