@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity
     private LineChart chartCarto;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
-    public File fileL = new File(root + "/DataLidar2.csv");
+    public File fileL = new File(root + "/DataLidar.csv");
     public File fileRG = new File(root + "/ReferencesReg.csv");
     private int k_phare =0;
 
@@ -352,7 +352,7 @@ public class MainActivity extends AppCompatActivity
 
             String[] DataLidar = new String[406];
             DataLidar = LoadFile(fileL);
-            DecoupeInverseDataLidar(DataLidar);
+            CreaCarto(DecoupeInverseDataLidar(DataLidar));
             int i=0;
         }
     };
@@ -401,8 +401,8 @@ public class MainActivity extends AppCompatActivity
     private void CreaCarto(int[][] angledirection){
 
         int[][] CoordXY= PassageCartesien(angledirection);
-        int[] Xvalues = CoordXY[0];
-        int[] Yvalues = CoordXY[1];
+        int[] Xvalues = CoordXY[1];
+        int[] Yvalues = CoordXY[0];
 
         ArrayList<Entry> valsX = new ArrayList<Entry>();
         int k = 0;
