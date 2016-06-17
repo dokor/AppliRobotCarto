@@ -55,6 +55,7 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -372,73 +373,87 @@ public class MainActivity extends AppCompatActivity
     private OnClickListener AffichageCarto = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            chartCarto.invalidate();
-//        LimitLine ll = new LimitLine(3, "Critical Blood Pressure");
-//        ll.setLineColor(Color.RED);
-//        ll.setLineWidth(4f);
-//        ll.setTextColor(Color.BLACK);
-//        ll.setTextSize(12f);
-//        leftAxis.addLimitLine(ll);
 
-            //Entry entry = new Entry(float val, int angle);
-            ArrayList<Entry> valsComp1 = new ArrayList<Entry>();
-//        Entry c1e1 = new Entry(100.000f, 0); // 0 == quarter 1
-//        valsComp1.add(c1e1);
-            Entry c1e1 = new Entry(5, 1);valsComp1.add(c1e1);
-            Entry c1e2 = new Entry(5, 11);valsComp1.add(c1e2);
-            Entry c1e3 = new Entry(-5, 11);valsComp1.add(c1e3);
-            Entry c1e4 = new Entry(-5, 1);valsComp1.add(c1e4);
-
-            LineDataSet setComp1 = new LineDataSet(valsComp1, "Chemin");
-            setComp1.setAxisDependency(YAxis.AxisDependency.LEFT);
-            // use the interface ILineDataSet
-            ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
-            dataSets.add(setComp1);
-
-            ArrayList<String> xVals = new ArrayList<String>();
-            for (int i = -6; i < 7; i++) {
-                xVals.add(String.valueOf(i));
+            int[][] angleDirection = new int[2][25];
+            for (int i = 0; i < 2 ; i++) {
+                for (int k = 0; k < 25; k++) {
+                    angleDirection[i][k] = i+k;
+                }
             }
-//        xVals.add("1.Q"); xVals.add("2.Q"); xVals.add("3.Q"); xVals.add("4.Q");
-            LineData data = new LineData(xVals, dataSets);
-//        LineDataSet dataSet = LineDataSet(ArrayList<Entry> yVals, String label);
-//        LineData data = LineData(ArrayList<String> xVals, dataSet);
-            chartCarto.setData(data);
+            int[] CordCartesien = angleDirection[0];
+            //int[][] CordCartesien = PassageCartesien(angleDirection);
 
-
-            YAxis leftAxis = chartCarto.getAxisLeft();
-            YAxis RightAxis = chartCarto.getAxisRight();
-            XAxis XAxis = chartCarto.getXAxis();
-
-            leftAxis.setEnabled(true);
-
-            leftAxis.setDrawAxisLine(true);
-            leftAxis.setDrawGridLines(true);
-            leftAxis.setDrawZeroLine(true);
-            leftAxis.setDrawTopYLabelEntry(true);
-            leftAxis.setDrawAxisLine(true);
-
-            leftAxis.setDrawLabels(false);
-            RightAxis.setDrawLabels(false);
-            XAxis.setDrawLabels(false);
-
-            RightAxis.setDrawZeroLine(true);
-            XAxis.setPosition(com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTH_SIDED);
-
-            YAxis left = chartCarto.getAxisLeft();
-            left.setDrawLabels(false); // no axis labels
-            left.setDrawAxisLine(true); // no axis line
-            left.setDrawGridLines(false); // no grid lines
-            left.setDrawZeroLine(true); // draw a zero line
-            left.setZeroLineWidth(2);
-
-            chartCarto.animateXY(50, 2500);
-            chartCarto.setDescription("Cartographie Alexou");
-            chartCarto.invalidate();
-            chartCarto.notifyDataSetChanged();
-
+            //CreaCarto(CordCartesien);
         }
     };
+
+    private int[][] PassageCartesien(int[][] angledirection){
+        for (int i = 0; i < angledirection.length ; i++) { //Pour chaque ligne
+            double CoordX = angledirection[1][i] * Math.sin(Math.toRadians(angledirection[0][i]));
+            double CoordY = angledirection[1][i] * Math.cos(Math.toRadians(angledirection[0][i]));
+            angledirection[0][i] = ((int) CoordX);
+            angledirection[1][i] = ((int) CoordY);
+        }
+        return angledirection;
+    }
+    private void CreaCarto(int[][] angledirection){
+
+        int[] Xvalues = angledirection[0];
+        int[] Yvalues = angledirection[1];
+
+        ArrayList<Entry> valsComp1 = new ArrayList<Entry>();
+
+        Entry c1e1 = new Entry(5, 1);valsComp1.add(c1e1);
+        Entry c1e2 = new Entry(5, 11);valsComp1.add(c1e2);
+        Entry c1e3 = new Entry(-5, 11);valsComp1.add(c1e3);
+        Entry c1e4 = new Entry(-5, 1);valsComp1.add(c1e4);
+
+        LineDataSet setComp1 = new LineDataSet(valsComp1, "Chemin");
+        setComp1.setAxisDependency(YAxis.AxisDependency.LEFT);
+
+        ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
+        dataSets.add(setComp1);
+        ArrayList<String> xVals = new ArrayList<String>();
+        for (int i = -6; i < 7; i++) {
+            xVals.add(String.valueOf(i));
+        }
+        LineData data = new LineData(xVals, dataSets);
+
+        chartCarto.setData(data);
+        ConfigCarto(chartCarto);
+        chartCarto.invalidate();
+        chartCarto.notifyDataSetChanged();
+    }
+    private void ConfigCarto(LineChart chart){
+
+        YAxis leftAxis = chart.getAxisLeft();
+        YAxis RightAxis = chart.getAxisRight();
+        XAxis XAxis = chart.getXAxis();
+
+        leftAxis.setEnabled(true);
+        leftAxis.setDrawAxisLine(true);
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setDrawZeroLine(true);
+        leftAxis.setDrawTopYLabelEntry(true);
+        leftAxis.setDrawAxisLine(true);
+        leftAxis.setDrawLabels(false); // no axis labels
+        leftAxis.setDrawAxisLine(true); // no axis line
+        leftAxis.setDrawGridLines(false); // no grid lines
+        leftAxis.setDrawZeroLine(true); // draw a zero line
+        leftAxis.setZeroLineWidth(2);
+        leftAxis.setDrawLabels(false);
+
+        RightAxis.setDrawLabels(false);
+        RightAxis.setDrawZeroLine(true);
+
+        XAxis.setDrawLabels(false);
+        XAxis.setPosition(com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTH_SIDED);
+
+        chartCarto.animateXY(50, 2500);
+        chartCarto.setDescription("Cartographie Alexou");
+
+    }
+
     private OnClickListener OnOffLidar = new OnClickListener() {
         @Override
         public void onClick(View v) {
