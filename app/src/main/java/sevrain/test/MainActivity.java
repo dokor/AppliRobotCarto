@@ -275,11 +275,11 @@ public class MainActivity extends AppCompatActivity
                     break;
             case R.id.rad_assiste:
                 if (checked)
-                    SendMessage(ModifParametrePrecis("00000100", 34));
+                    SendMessage(ModifParametrePrecis("00000101", 34));
                     break;
             case R.id.rad_auto:
                 if (checked)
-                    SendMessage(ModifParametrePrecis("00000101", 34));
+                    SendMessage(ModifParametrePrecis("00000100", 34));
                     break;
         }
     }
@@ -444,7 +444,7 @@ public class MainActivity extends AppCompatActivity
                     test[5] = "0001100000000000";
                     test[6] = "0010100100000000";
                     test[7] = "0010000000000000";
-                    test[8] = "11101000000000110000000000000000";
+                    test[8] = "00000001000000000000000000000000";
                     byte[] Tab_Envoi = new byte[24];
                     int j=0;
                     for (int i=0;i<9;i++){
@@ -472,7 +472,6 @@ public class MainActivity extends AppCompatActivity
                         j = j+test1.length;
                     }
                     SendMessage(Tab_Envoi);
-                    mTcpClient.bf.clear();
                     k_phare=0;
                 }
 
@@ -645,21 +644,20 @@ public class MainActivity extends AppCompatActivity
             //Vérification du header, afin d'etre sur de son intégrité
             if (VerifIntegriteHeader(T_Transport)) {
                 //Header OK
+                if (DevinTypeMessage(T_Transport) == 2) {
+                    String[] DonneeTabPropre = new String[64];
+                    DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,0);
+                    SaveDataInFile(DonneeTabPropre, file);
+                    Log.i("Debug", "MAJ Data");
+                }
                 if (DevinTypeMessage(T_Transport) == 41) {
-                    String[] DonneeTabPropre = new String[1206];
+                    String[] DonneeTabPropre = new String[406];
                     DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,1);
                     SaveDataInFile(DonneeTabPropre, fileL);
                     Log.i("Debug", "MAJ Lidar");
                     String[] DataLidar;
                     DataLidar = LoadFile(fileL);
-                    CreaCarto(DecoupeInverseDataLidar(DataLidar));
 
-                }
-                else if (DevinTypeMessage(T_Transport) == 2) {
-                    String[] DonneeTabPropre = new String[64];
-                    DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,0);
-                    SaveDataInFile(DonneeTabPropre, file);
-                    Log.i("Debug", "MAJ Data");
                 }
             }
         }
@@ -706,10 +704,12 @@ public class MainActivity extends AppCompatActivity
         test[index] = valeur;
         test[index2] = valeur2;
         for (int i = 0; i < 64; i++) {
-            byte[] test1 = new byte[fromBinaryString(test[i]).length];
-            test1 = fromBinaryString(test[i]);
-            System.arraycopy(test1, 0, Tab_Envoi, j, test1.length);
-            j = j + test1.length;
+            if(fromBinaryString(test[i])!= null) {
+                byte[] test1 = new byte[fromBinaryString(test[i]).length];
+                test1 = fromBinaryString(test[i]);
+                System.arraycopy(test1, 0, Tab_Envoi, j, test1.length);
+                j = j + test1.length;
+            }
         }
         return Tab_Envoi;
     }
@@ -737,61 +737,54 @@ public class MainActivity extends AppCompatActivity
     }
 
     private static byte[] fromBinaryString (final String s) {
-        if (s.length() == 32){
-            byte[] b2 = new byte[4];
-            byte[] b = new BigInteger(s,2).toByteArray();
-            if (b.length==b2.length){
-                return b;
-            }
-            else if(b.length==1){
-                return b2;
-            }
-            else if (b.length == 3){
-                b2[0] = b[0];
-                b2[1] = b[0];
-                b2[2] = b[1];
-                b2[3] = b[2];
-                return b2;
-            }
-            else if (b.length == 2){
-                b2[0] = b[0];
-                b2[1] = b[0];
-                b2[2] = b[0];
-                b2[3] = b[1];
-                return b2;
-            }
-            else {
-                b2[0] = b[1];
-                b2[1] = b[2];
-                b2[2] = b[3];
-                b2[3] = b[4];
-                return b2;
-            }
-        }
-        else if (s.length() == 16){
-            byte[] b2 = new byte[2];
-            byte[] b = new BigInteger(s,2).toByteArray();
-            if (b.length==b2.length){
-                return b;
-            }
-            else if(b.length==1){
-                return b2;
-            }
-            else {
-                b2[0] = b[1];
-                b2[1] = b[2];
-                return b2;
-            }
-        }
-        else if (s.length() ==8){
-            byte[] b2 = new byte[1];
-            byte[] b = new BigInteger(s,2).toByteArray();
-            if (b.length==b2.length){
-                return b;
-            }
-            else {
-                b2[0]=b[1];
-                return b2;
+        if(s != null) {
+            if (s.length() == 32) {
+                byte[] b2 = new byte[4];
+                byte[] b = new BigInteger(s, 2).toByteArray();
+                if (b.length == b2.length) {
+                    return b;
+                } else if (b.length == 1) {
+                    return b2;
+                } else if (b.length == 3) {
+                    b2[0] = b[0];
+                    b2[1] = b[0];
+                    b2[2] = b[1];
+                    b2[3] = b[2];
+                    return b2;
+                } else if (b.length == 2) {
+                    b2[0] = b[0];
+                    b2[1] = b[0];
+                    b2[2] = b[0];
+                    b2[3] = b[1];
+                    return b2;
+                } else {
+                    b2[0] = b[1];
+                    b2[1] = b[2];
+                    b2[2] = b[3];
+                    b2[3] = b[4];
+                    return b2;
+                }
+            } else if (s.length() == 16) {
+                byte[] b2 = new byte[2];
+                byte[] b = new BigInteger(s, 2).toByteArray();
+                if (b.length == b2.length) {
+                    return b;
+                } else if (b.length == 1) {
+                    return b2;
+                } else {
+                    b2[0] = b[1];
+                    b2[1] = b[2];
+                    return b2;
+                }
+            } else if (s.length() == 8) {
+                byte[] b2 = new byte[1];
+                byte[] b = new BigInteger(s, 2).toByteArray();
+                if (b.length == b2.length) {
+                    return b;
+                } else {
+                    b2[0] = b[1];
+                    return b2;
+                }
             }
         }
         return null;
