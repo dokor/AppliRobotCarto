@@ -41,7 +41,12 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.XAxisValueFormatter;
+import com.github.mikephil.charting.formatter.YAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -66,7 +71,7 @@ public class MainActivity extends AppCompatActivity
                 implements NavigationView.OnNavigationItemSelectedListener {
     private final static int ID_DIALOG = 0;
     private RelativeLayout layout_joystick, layout_Carto;
-    private TextView PosX, PosY, Direction;
+    private GraphView graph;
     private FloatingActionButton Connexion, Btn_TEST, Info;
     private Switch SwitchPhares, SwitchLidar;
     private JoyStickClass js;
@@ -100,8 +105,9 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        chartCarto = (LineChart) findViewById(R.id.chart);
+//        chartCarto = (LineChart) findViewById(R.id.chart);
 
+        graph = (GraphView) findViewById(R.id.graph);
 
 
         //Création du joystick + Position X/Y + Boutons
@@ -353,7 +359,7 @@ public class MainActivity extends AppCompatActivity
             String[] DataLidar = new String[406];
             DataLidar = LoadFile(fileL);
             CreaCarto(DecoupeInverseDataLidar(DataLidar));
-            int i=0;
+
         }
     };
 
@@ -389,74 +395,49 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
-    private int[][] PassageCartesien(int[][] angledirection){
-        for (int i = 0; i < angledirection.length ; i++) { //Pour chaque ligne
-            double CoordX = angledirection[1][i] * Math.sin(Math.toRadians(angledirection[0][i]));
-            double CoordY = angledirection[1][i] * Math.cos(Math.toRadians(angledirection[0][i]));
-            angledirection[0][i] = ((int) CoordX);
-            angledirection[1][i] = ((int) CoordY);
+    private int[][] PassageCartesien(int[][] angledirec){
+        for (int i = 0; i < angledirec[0].length ; i++) { //Pour chaque ligne
+            double CoordX = angledirec[1][i] * Math.sin(Math.toRadians(angledirec[0][i]));
+            double CoordY = angledirec[1][i] * Math.cos(Math.toRadians(angledirec[0][i]));
+            angledirec[0][i] = ((int) CoordX);
+            angledirec[1][i] = ((int) CoordY);
         }
-        return angledirection;
+        return angledirec;
+    }
+
+    private LineGraphSeries<DataPoint> MajDonneeCarto(DataPoint[] data){
+        graph.getViewport().setScrollable(true);
+
+        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setMinX(-3500);
+        graph.getViewport().setMaxX(3500);
+
+        // set manual Y bounds
+        graph.getViewport().setYAxisBoundsManual(true);
+        graph.getViewport().setMinY(-3500);
+        graph.getViewport().setMaxY(3500);
+
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(data);
+        return series;
     }
     private void CreaCarto(int[][] angledirection){
 
         int[][] CoordXY= PassageCartesien(angledirection);
         int[] Xvalues = CoordXY[1];
         int[] Yvalues = CoordXY[0];
+        DataPoint[] data = new DataPoint[Xvalues.length];
 
-        ArrayList<Entry> valsX = new ArrayList<Entry>();
-        int k = 0;
-        for (int X : Xvalues ) {
-            Entry c1e1 = new Entry(X, k); valsX.add(c1e1);
-            k++;
-        }
-        LineDataSet setComp1 = new LineDataSet(valsX, "Chemin");
-
-        setComp1.setAxisDependency(YAxis.AxisDependency.LEFT);
-        ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
-        dataSets.add(setComp1);
-        ArrayList<String> Yvals = new ArrayList<String>();
-        for (int Y : Yvalues ) {
-            Yvals.add(String.valueOf(Y));
+        for (int i = 0; i < Xvalues.length-1; i++) {
+            data[i] = new DataPoint(Xvalues[i],Yvalues[i]);
         }
 
-        LineData data = new LineData(Yvals, dataSets);
-        chartCarto.setData(data);
-        ConfigCarto(chartCarto);
-        chartCarto.invalidate();
-        chartCarto.notifyDataSetChanged();
-    }
-    private void ConfigCarto(LineChart chart){
+        LineGraphSeries<DataPoint> series = MajDonneeCarto(data);
+//        series.resetData(data);
+        graph.addSeries(series);
 
-        YAxis leftAxis = chart.getAxisLeft();
-        YAxis RightAxis = chart.getAxisRight();
-        XAxis XAxis = chart.getXAxis();
-
-        leftAxis.setEnabled(true);
-        leftAxis.setDrawAxisLine(true);
-        leftAxis.setDrawGridLines(true);
-        leftAxis.setDrawZeroLine(true);
-        leftAxis.setDrawTopYLabelEntry(true);
-        leftAxis.setDrawAxisLine(true);
-        leftAxis.setDrawLabels(false); // no axis labels
-        leftAxis.setDrawAxisLine(true); // no axis line
-        leftAxis.setDrawGridLines(false); // no grid lines
-        leftAxis.setDrawZeroLine(true); // draw a zero line
-        leftAxis.setZeroLineWidth(2);
-        leftAxis.setDrawLabels(false);
-
-        RightAxis.setDrawLabels(false);
-        RightAxis.setDrawZeroLine(true);
-
-        XAxis.setDrawLabels(false);
-        XAxis.setPosition(com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTH_SIDED);
-
-        chartCarto.animateXY(50, 2500);
-        chartCarto.setDescription("Cartographie Alexou");
 
     }
-
-    private OnClickListener OnOffLidar = new OnClickListener() {
+       private OnClickListener OnOffLidar = new OnClickListener() {
         @Override
         public void onClick(View v) {
             if (TcpClient.mRun) {
@@ -678,6 +659,10 @@ public class MainActivity extends AppCompatActivity
                     DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,1);
                     SaveDataInFile(DonneeTabPropre, fileL);
                     Log.i("Debug", "MAJ Lidar");
+                    String[] DataLidar;
+                    DataLidar = LoadFile(fileL);
+                    CreaCarto(DecoupeInverseDataLidar(DataLidar));
+
                 }
             }
         }
