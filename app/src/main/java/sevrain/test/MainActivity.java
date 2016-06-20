@@ -60,6 +60,7 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity
                 implements NavigationView.OnNavigationItemSelectedListener {
     private final static int ID_DIALOG = 0;
     private RelativeLayout layout_joystick, layout_Carto;
-    private GraphView graph;
+    public GraphView graph;
     private FloatingActionButton Connexion, Btn_TEST, Info;
     private Switch SwitchPhares, SwitchLidar;
     private JoyStickClass js;
@@ -139,12 +140,6 @@ public class MainActivity extends AppCompatActivity
 
         final int[] lock = {0,0};
 
-//        ImageView imageView = new ImageView(getApplicationContext());
-//        Bitmap mainImage = BitmapFactory.decodeResource(getResources(), R.drawable.);
-//        mainImage.setPixel(50,50,50);
-//        imageView.setImageBitmap( mainImage );
-//        layout_Carto.addView( imageView );
-
         layout_joystick.setOnTouchListener(new OnTouchListener() {
             public boolean onTouch(View arg0, MotionEvent arg1) {
                 js.drawStick(arg1);
@@ -153,9 +148,6 @@ public class MainActivity extends AppCompatActivity
                 if (TcpClient.mRun) {
                     if (arg1.getAction() == MotionEvent.ACTION_DOWN
                             || arg1.getAction() == MotionEvent.ACTION_MOVE) {
-//                        PosX.setText("X: " + String.valueOf(js.getX()));
-//                        PosY.setText("Y: " + String.valueOf(js.getY()));
-//                        Direction.setText("Direct: " + String.valueOf(js.get8Direction()));
                         Y = js.getY();
                         X = js.getX();
                         int direction = js.get8Direction();
@@ -242,18 +234,12 @@ public class MainActivity extends AppCompatActivity
                             }
                         }
                     } else if (arg1.getAction() == MotionEvent.ACTION_UP) {
-//                        PosX.setText("X:");
-//                        PosY.setText("Y:");
-
                         if (lock[0] != 1) {
                             SendMessage(Modif2ParametrePrecis("00000000000000000000000000000000", "00000000000000000000000000000000", 27, 26));
                             Log.i("Debug", "Stop");
                             lock[0] = 0;
                             lock[1] = 0;
                         }
-
-//                        Direction.setText("Direction:");
-
                     }
                 }
                     return true;
@@ -268,14 +254,13 @@ public class MainActivity extends AppCompatActivity
         try {
             if(!file.exists()) {
                 FileWriter writer = new FileWriter(file);
+            }
+            if(!fileL.exists()) {
                 FileWriter writerL = new FileWriter(fileL);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-//        LoadMessageRobot(mTcpClient);
-
     }
 
     public void onRadioButtonClickedMode(View view) {
@@ -384,14 +369,8 @@ public class MainActivity extends AppCompatActivity
     private OnClickListener AffichageCarto = new OnClickListener() {
         @Override
         public void onClick(View v) {
-
-            int[][] angleDirection = new int[2][25];
-            for (int i = 0; i < 2 ; i++) {
-                for (int k = 0; k < 25; k++) {
-                    angleDirection[i][k] = i+k;
-                }
-            }
-            CreaCarto(angleDirection);
+            String[] DataLidar = LoadFile(fileL);
+            CreaCarto(DecoupeInverseDataLidar(DataLidar));
         }
     };
 
@@ -405,30 +384,48 @@ public class MainActivity extends AppCompatActivity
         return angledirec;
     }
 
-    private LineGraphSeries<DataPoint> MajDonneeCarto(DataPoint[] data){
+    public LineGraphSeries<DataPoint> MajDonneeCarto(DataPoint[] data){
         graph.getViewport().setScrollable(true);
 
         graph.getViewport().setXAxisBoundsManual(true);
-        graph.getViewport().setMinX(-3500);
-        graph.getViewport().setMaxX(3500);
+        graph.getViewport().setMinX(-4000);
+        graph.getViewport().setMaxX(4000);
 
         // set manual Y bounds
         graph.getViewport().setYAxisBoundsManual(true);
-        graph.getViewport().setMinY(-3500);
-        graph.getViewport().setMaxY(3500);
+        graph.getViewport().setMinY(-4000);
+        graph.getViewport().setMaxY(4000);
 
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(data);
         return series;
     }
-    private void CreaCarto(int[][] angledirection){
+    public void CreaCarto(int[][] angledirection){
 
         int[][] CoordXY= PassageCartesien(angledirection);
         int[] Xvalues = CoordXY[1];
         int[] Yvalues = CoordXY[0];
-        DataPoint[] data = new DataPoint[Xvalues.length];
+        int[] Xvalues_tri = Xvalues;
+        int[] Yvalues_tri = Yvalues;
+        Arrays.sort(Xvalues_tri);
+        Arrays.sort(Yvalues_tri);
+        DataPoint[] data = new DataPoint[150];
 
-        for (int i = 0; i < Xvalues.length-1; i++) {
-            data[i] = new DataPoint(Xvalues[i],Yvalues[i]);
+        for (int i = 0; i < Xvalues.length; i++) {
+            if (Xvalues[i] != 0){
+                if (Xvalues[i] < 4000){
+                    if(Xvalues[i] > -4000) {
+                        if (Yvalues[i] != 0){
+                            if (Yvalues[i] < 4000) {
+                                if (Yvalues[i] > -4000) {
+                                    if (i < 150) {
+                                        data[i] = new DataPoint(Xvalues[i], Yvalues[i]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         LineGraphSeries<DataPoint> series = MajDonneeCarto(data);
@@ -556,7 +553,7 @@ public class MainActivity extends AppCompatActivity
                     handler.removeCallbacks(r);
                 }
             };
-            timerAsync.schedule(timerTaskAsync, 0, 500);
+            timerAsync.schedule(timerTaskAsync, 0, 100);
 
         }
 
@@ -648,13 +645,7 @@ public class MainActivity extends AppCompatActivity
             //Vérification du header, afin d'etre sur de son intégrité
             if (VerifIntegriteHeader(T_Transport)) {
                 //Header OK
-                if (DevinTypeMessage(T_Transport) == 2) {
-                    String[] DonneeTabPropre = new String[64];
-                    DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,0);
-                    SaveDataInFile(DonneeTabPropre, file);
-                    Log.i("Debug", "MAJ Data");
-                }
-                else if (DevinTypeMessage(T_Transport) == 41) {
+                if (DevinTypeMessage(T_Transport) == 41) {
                     String[] DonneeTabPropre = new String[1206];
                     DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,1);
                     SaveDataInFile(DonneeTabPropre, fileL);
@@ -663,6 +654,12 @@ public class MainActivity extends AppCompatActivity
                     DataLidar = LoadFile(fileL);
                     CreaCarto(DecoupeInverseDataLidar(DataLidar));
 
+                }
+                else if (DevinTypeMessage(T_Transport) == 2) {
+                    String[] DonneeTabPropre = new String[64];
+                    DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,0);
+                    SaveDataInFile(DonneeTabPropre, file);
+                    Log.i("Debug", "MAJ Data");
                 }
             }
         }
@@ -1054,22 +1051,27 @@ public class MainActivity extends AppCompatActivity
             case "01":
                 Msg = 1;
                 break;
+
             //TYPE_MSG_REGLAGE
             case "02" :
                 Msg = 2;
                 break;
+
             //TYPE_MSG_LONG
             case "028" :
                 Msg = 40;
                 break;
+
             //TYPE_MSG_SCAN
             case "029" :
                 Msg = 41;
                 break;
+
             //TYPE_MSG_COMPAS_XY
             case "030" :
                 Msg = 42;
                 break;
+
             //Other
             default:
                 Msg = 0;
