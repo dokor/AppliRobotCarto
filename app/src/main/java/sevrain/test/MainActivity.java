@@ -33,6 +33,7 @@ import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.LimitLine;
@@ -46,7 +47,10 @@ import com.github.mikephil.charting.formatter.YAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.OnDataPointTapListener;
+import com.jjoe64.graphview.series.Series;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -81,7 +85,7 @@ public class MainActivity extends AppCompatActivity
     private LineChart chartCarto;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
-    public File fileL = new File(root + "/DataLidar.csv");
+    public File fileL = new File(root + "/DataLidar2.csv");
     public File fileRG = new File(root + "/ReferencesReg.csv");
     private int k_phare =0;
 
@@ -386,15 +390,18 @@ public class MainActivity extends AppCompatActivity
 
     public LineGraphSeries<DataPoint> MajDonneeCarto(DataPoint[] data){
         graph.getViewport().setScrollable(true);
-
+//
         graph.getViewport().setXAxisBoundsManual(true);
-        graph.getViewport().setMinX(-4000);
-        graph.getViewport().setMaxX(4000);
+        graph.getViewport().setMinX(-3000);
+        graph.getViewport().setMaxX(5000);
 
         // set manual Y bounds
         graph.getViewport().setYAxisBoundsManual(true);
-        graph.getViewport().setMinY(-4000);
-        graph.getViewport().setMaxY(4000);
+        graph.getViewport().setMinY(-5000);
+        graph.getViewport().setMaxY(3000);
+
+        graph.setTitle("Robot Cartographieur");
+
 
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(data);
         return series;
@@ -404,32 +411,56 @@ public class MainActivity extends AppCompatActivity
         int[][] CoordXY= PassageCartesien(angledirection);
         int[] Xvalues = CoordXY[1];
         int[] Yvalues = CoordXY[0];
-        int[] Xvalues_tri = Xvalues;
-        int[] Yvalues_tri = Yvalues;
-        Arrays.sort(Xvalues_tri);
-        Arrays.sort(Yvalues_tri);
-        DataPoint[] data = new DataPoint[150];
+        DataPoint[] data = new DataPoint[Xvalues.length];
 
         for (int i = 0; i < Xvalues.length; i++) {
-            if (Xvalues[i] != 0){
-                if (Xvalues[i] < 4000){
-                    if(Xvalues[i] > -4000) {
-                        if (Yvalues[i] != 0){
-                            if (Yvalues[i] < 4000) {
-                                if (Yvalues[i] > -4000) {
-                                    if (i < 150) {
-                                        data[i] = new DataPoint(Xvalues[i], Yvalues[i]);
-                                    }
-                                }
-                            }
-                        }
-                    }
+            int valeur_modif = 0;
+            if (Xvalues[i] == 0) {
+                data[i] = new DataPoint(data[i - 1].getX(), Yvalues[i]);
+                valeur_modif++;
+            }
+            else if((Xvalues[i] < -4000) ^ (Xvalues[i] > 4000)) {
+                data[i] = new DataPoint(data[i - 1].getX(), Yvalues[i]);
+                valeur_modif++;
+            }
+
+            if (Yvalues[i] == 0){
+                if(valeur_modif == 1) {
+                    double temp = data[i].getX();
+                    data[i] = new DataPoint(temp, data[i - 1].getY());
+                }else{
+                    data[i] = new DataPoint(Xvalues[i], data[i - 1].getY());
                 }
+                valeur_modif++;
+            }
+            else if ((Yvalues[i] < -4000) ^ (Yvalues[i] > 4000)){
+                if(valeur_modif == 1) {
+                    double temp = data[i].getX();
+                    data[i] = new DataPoint(temp,data[i - 1].getY());
+                }else{
+                    data[i] = new DataPoint(Xvalues[i],data[i - 1].getY());
+                }
+                valeur_modif++;
+            }
+
+            if(valeur_modif == 0) {
+                data[i] = new DataPoint(Xvalues[i], Yvalues[i]);
             }
         }
 
         LineGraphSeries<DataPoint> series = MajDonneeCarto(data);
 //        series.resetData(data);
+        series.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series series_tab, DataPointInterface dataPoint) {
+
+                graph.setTitle("Robot Cartographieur : " +dataPoint);
+
+            }
+        });
+        series.setDrawDataPoints(true);
+        series.setDataPointsRadius(1);
+        series.setThickness(2);
         graph.addSeries(series);
 
 
@@ -552,7 +583,7 @@ public class MainActivity extends AppCompatActivity
                     handler.removeCallbacks(r);
                 }
             };
-            timerAsync.schedule(timerTaskAsync, 0, 100);
+            timerAsync.schedule(timerTaskAsync, 0, 500);
 
         }
 
