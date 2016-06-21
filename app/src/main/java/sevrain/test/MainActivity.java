@@ -80,12 +80,10 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton Connexion, Btn_TEST, Carto;
     private Switch SwitchPhares, SwitchLidar;
     private JoyStickClass js;
-    private Paint paint = new Paint();
     public TcpClient mTcpClient;
-    private LineChart chartCarto;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
-    public File fileL = new File(root + "/DataLidar2.csv");
+    public File fileL = new File(root + "/DataLidar.csv");
     public File fileRG = new File(root + "/ReferencesReg.csv");
     private int k_phare =0,lidar;
 
@@ -414,8 +412,13 @@ public class MainActivity extends AppCompatActivity
         graph.getViewport().setScrollable(true);
         //get max valeur absolue de Xmin et Xmax
         int valeur_max = getValeurMax(data);
-        int k = 500;
-
+        int k = 1000;
+        if(valeur_max < 3000 ){
+            valeur_max = 3000;
+        }
+        if(valeur_max > 9000 ){
+            valeur_max = 9000;
+        }
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().setMinX(- valeur_max - k);
         graph.getViewport().setMaxX(valeur_max + k);
@@ -497,14 +500,15 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
-        DataPoint[] Angle0 = new DataPoint[3];
-        for (int i  = -1; i  < 2 ;  i++) {
-            Angle0[i+1]  =  data[indice0 + i] ;
+        DataPoint[] Angle0 = new DataPoint[2];
+        for (int i  = 0; i  < 2 ;  i++) {
+            Angle0[i]  =  data[indice0 + i] ;
         }
 //        Angle0[0]  =  data[indice0] ;
         LineGraphSeries<DataPoint> serieAngle0 = MajDonneeCarto(Angle0);
         serieAngle0.setColor(Color.RED);
         serieAngle0.setBackgroundColor(Color.RED);
+        series.setDataPointsRadius(2);
         serieAngle0.setDrawDataPoints(true);
         series.setDrawDataPoints(true);
         series.setDataPointsRadius(1);
@@ -540,6 +544,7 @@ public class MainActivity extends AppCompatActivity
                         System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
                         j = j+test1.length;
                     }
+                    lidar=1;
                     SendMessage(Tab_Envoi);
                     k_phare=1;
                 }
@@ -558,6 +563,7 @@ public class MainActivity extends AppCompatActivity
                         System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
                         j = j+test1.length;
                     }
+                    lidar=0;
                     SendMessage(Tab_Envoi);
                     k_phare=0;
                 }
@@ -737,7 +743,7 @@ public class MainActivity extends AppCompatActivity
                 T_Transport = InverseData(T_Transport);
                 byte[] resultat2 = new byte[(resultat.length) - k];
                 System.arraycopy(resultat, k, resultat2, 0, (resultat.length) - k);
-
+                graph.setTitle("Robot Cartographieur : Att");
                 //Vérification du header, afin d'etre sur de son intégrité
                 if (VerifIntegriteHeader(T_Transport)) {
                     //Header OK
@@ -752,6 +758,8 @@ public class MainActivity extends AppCompatActivity
                         DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre, 1);
                         SaveDataInFile(DonneeTabPropre, fileL);
                         Log.i("Debug", "MAJ Lidar");
+                        graph.setTitle("Robot Cartographieur : MAJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ");
+                        Carto.performClick();
                     }
                 }
             }
