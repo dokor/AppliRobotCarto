@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity
     public File file = new File(root + "/settingsDEV.csv");
     public File fileL = new File(root + "/DataLidar2.csv");
     public File fileRG = new File(root + "/ReferencesReg.csv");
-    private int k_phare =0;
+    private int k_phare =0,lidar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -712,44 +712,51 @@ public class MainActivity extends AppCompatActivity
             resultat = message.array();
             //Creation du Tableau de string
             String[] T_Transport = new String[16];
-            int i = 0;
+            int i = 0,n=0;
             int k = 0;
-            while (resultat[i] != -86) {
-                i++;
-            }
-            k = i;
-            //Remplissage du tableau de string avec les valeurs en Hexa de resultat
-            for (int j = 0; j < 16; j++) {
-                T_Transport[j] = String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
-                i++;
-            }
-            //Inversion des données du tableau selon methode spécial Header
-            T_Transport = InverseData(T_Transport);
-            byte[] resultat2 = new byte[(resultat.length) - k];
-            System.arraycopy(resultat, k, resultat2, 0, (resultat.length) - k);
-
-            //Vérification du header, afin d'etre sur de son intégrité
-            if (VerifIntegriteHeader(T_Transport)) {
-                //Header OK
-                if (DevinTypeMessage(T_Transport) == 2) {
-                    String[] DonneeTabPropre = new String[64];
-                    DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,0);
-                    SaveDataInFile(DonneeTabPropre, file);
-                    Log.i("Debug", "MAJ Data");
+            if (lidar == 1) {
+                while (resultat[i] != -86 && i<resultat.length-9 && n !=50) {
+                    i++;
+                    if(resultat[i+8] == 2){
+                        i+=163;
+                        n++;
+                    }
                 }
-                if (DevinTypeMessage(T_Transport) == 41) {
-                    String[] DonneeTabPropre = new String[406];
-                    DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre,1);
-                    SaveDataInFile(DonneeTabPropre, fileL);
-                    Log.i("Debug", "MAJ Lidar");
-                    String[] DataLidar;
-                    DataLidar = LoadFile(fileL);
-                    Carto.performClick();
+            } else {
+                while (resultat[i] != -86 && i < resultat.length) {
+                    i++;
+                }
+                k = i;
+            }
+                //Remplissage du tableau de string avec les valeurs en Hexa de resultat
+                for (int j = 0; j < 16; j++) {
+                    T_Transport[j] = String.format(Integer.toHexString(resultat[i] & 0xFF)).replace(' ', '0');
+                    i++;
+                }
+                //Inversion des données du tableau selon methode spécial Header
+                T_Transport = InverseData(T_Transport);
+                byte[] resultat2 = new byte[(resultat.length) - k];
+                System.arraycopy(resultat, k, resultat2, 0, (resultat.length) - k);
 
+                //Vérification du header, afin d'etre sur de son intégrité
+                if (VerifIntegriteHeader(T_Transport)) {
+                    //Header OK
+                    if (DevinTypeMessage(T_Transport) == 2) {
+                        String[] DonneeTabPropre = new String[64];
+                        DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre, 0);
+                        SaveDataInFile(DonneeTabPropre, file);
+                        Log.i("Debug", "MAJ Data");
+                    }
+                    if (DevinTypeMessage(T_Transport) == 41) {
+                        String[] DonneeTabPropre = new String[406];
+                        DonneeTabPropre = InverseMessageT_Transp(resultat2, DonneeTabPropre, 1);
+                        SaveDataInFile(DonneeTabPropre, fileL);
+                        Log.i("Debug", "MAJ Lidar");
+                    }
                 }
             }
         }
-    }
+
 
     private String ConvertInvertData (float Pos,int mode){
 
