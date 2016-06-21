@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity
     public File file = new File(root + "/settingsDEV.csv");
     public File fileL = new File(root + "/DataLidar.csv");
     public File fileRG = new File(root + "/ReferencesReg.csv");
-    private int k_phare =0,lidar;
+    private int k_phare =0,lidar,count;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -344,9 +344,9 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onClick(View v) {
 
-            String[] DataLidar = new String[406];
-            DataLidar = LoadFile(fileL);
-            CreaCarto(DecoupeInverseDataLidar(DataLidar));
+            String[] Data = LoadFile(file);
+            byte[] b = fromBinaryString(Data[42]);
+            
 
         }
     };
@@ -373,7 +373,9 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onClick(View v) {
             String[] DataLidar = LoadFile(fileL);
-            CreaCarto(DecoupeInverseDataLidar(DataLidar));
+            int[][] Tab = DecoupeInverseDataLidar(DataLidar);
+            if(count <270)
+            CreaCarto(Tab);
         }
     };
 
@@ -998,13 +1000,14 @@ public class MainActivity extends AppCompatActivity
 
     public int [][] DecoupeInverseDataLidar(String[] Data){
         String[] s,sI;
-        int a;
+        int a,b;
         sI = new String[3];
         char[] Resultat_char = new char[16];
         int [] Qua = new int[400], Ang = new int[400],Dis = new int[400];
         int m=0,sup=0;
         boolean Ok = false;
 
+        count=0;
             for(int i=6;i<406;i++){
                     for (int k=0;k<3;k++) {
                         s = Data[i].split(";");
@@ -1041,7 +1044,11 @@ public class MainActivity extends AppCompatActivity
                         else{
                             if(Ok == true){
                                 if(k == 1){
-                                    Ang[i-6-sup]= Integer.parseInt(sb.toString(), 2)/64;
+                                    b = Integer.parseInt(sb.toString(), 2)/64;
+                                    Ang[i-6-sup]= b;
+                                    if(b==0){
+                                        count++;
+                                    }
                                     }
                                 else {
                                    Dis[i-6-sup]= Integer.parseInt(sb.toString(), 2)/4;
