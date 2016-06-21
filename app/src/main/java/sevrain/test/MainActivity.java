@@ -380,7 +380,7 @@ public class MainActivity extends AppCompatActivity
     };
 
     private int[][] PassageCartesien(int[][] angledirec){
-        for (int i = 0; i < angledirec[0].length ; i++) { //Pour chaque ligne
+        for (int i = 0; i < angledirec[0].length ;i++) { //Pour chaque ligne
             double CoordX = angledirec[1][i] * Math.sin(Math.toRadians(angledirec[0][i]));
             double CoordY = angledirec[1][i] * Math.cos(Math.toRadians(angledirec[0][i]));
             angledirec[0][i] = ((int) CoordX);
@@ -434,9 +434,10 @@ public class MainActivity extends AppCompatActivity
         int indice_need = 0;
         int k = 0;
         for (int angle :tab_angle) {
-
-            if (angle < 5 ){
-                indice_need = k;
+            if (angle > 0 ) {
+                if (angle < 5) {
+                    indice_need = k;
+                }
             }
             k++;
         }
@@ -451,7 +452,7 @@ public class MainActivity extends AppCompatActivity
         int[] Yvalues = CoordXY[0];
         DataPoint[] data = new DataPoint[Xvalues.length];
 
-        for (int i = 0; i < Xvalues.length; i++) {
+        for (int i = 0; i < Xvalues.length;i++) {
             int valeur_modif = 0;
             if (Xvalues[i] == 0) {
                 data[i] = new DataPoint(data[i - 1].getX(), Yvalues[i]);
@@ -496,10 +497,15 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
-        DataPoint[] Angle0 = new DataPoint[1];
-        Angle0[0]  =  data[indice0] ;
+        DataPoint[] Angle0 = new DataPoint[3];
+        for (int i  = -1; i  < 2 ;  i++) {
+            Angle0[i+1]  =  data[indice0 + i] ;
+        }
+//        Angle0[0]  =  data[indice0] ;
         LineGraphSeries<DataPoint> serieAngle0 = MajDonneeCarto(Angle0);
         serieAngle0.setColor(Color.RED);
+        serieAngle0.setBackgroundColor(Color.RED);
+        serieAngle0.setDrawDataPoints(true);
         series.setDrawDataPoints(true);
         series.setDataPointsRadius(1);
         series.setThickness(2);
