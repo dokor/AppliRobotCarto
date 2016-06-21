@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity
     private final static int ID_DIALOG = 0;
     private RelativeLayout layout_joystick, layout_Carto;
     public GraphView graph;
-    private FloatingActionButton Connexion, Btn_TEST, Info;
+    private FloatingActionButton Connexion, Btn_TEST, Carto;
     private Switch SwitchPhares, SwitchLidar;
     private JoyStickClass js;
     private Paint paint = new Paint();
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity
         layout_Carto = (RelativeLayout) findViewById(R.id.layout_Carto);
 
         Btn_TEST = (FloatingActionButton) findViewById(R.id.Btn_TEST);
-        Info = (FloatingActionButton) findViewById(R.id.Info);
+        Carto = (FloatingActionButton) findViewById(R.id.Info);
         Connexion = (FloatingActionButton) findViewById(R.id.Connexion);
         SwitchPhares = (Switch) findViewById(R.id.Switch_phare) ;
         SwitchLidar = (Switch) findViewById(R.id.Switch_Lidar) ;
@@ -129,7 +129,8 @@ public class MainActivity extends AppCompatActivity
         Connexion.setOnClickListener(ConnexionRobot);
         SwitchPhares.setOnClickListener(AllumerPhares);
         SwitchLidar.setOnClickListener(OnOffLidar);
-        Info.setOnClickListener(AffichageCarto);
+        Carto.setOnClickListener(AffichageCarto);
+
 
         Btn_TEST.setImageResource(R.drawable.ic_menu_slideshow);
         Connexion.setImageResource(R.drawable.ic_cloud_white_24dp);
@@ -387,18 +388,40 @@ public class MainActivity extends AppCompatActivity
         }
         return angledirec;
     }
+    private int getValeurMax(DataPoint[] tab_data){
+        double[] Tab_max = new double[2];
+        for (DataPoint data_unit :tab_data) {
+            if(Math.abs(data_unit.getX()) > Tab_max[0]) {
+                Tab_max[0] = Math.abs(data_unit.getX());
+            }
+            if(Math.abs(data_unit.getY()) > Tab_max[1]) {
+                Tab_max[1] = Math.abs(data_unit.getY());
+            }
+        }
+        int[] tab_max_int = new int[2];
+        tab_max_int[0] = ((int) Math.abs(Tab_max[0]));
+        tab_max_int[1] = ((int) Math.abs(Tab_max[1]));
+        if(tab_max_int[0] > tab_max_int[1] ){
+            return tab_max_int[0];
+        }
+        else{
+            return tab_max_int[1];
+        }
+
+    }
 
     public LineGraphSeries<DataPoint> MajDonneeCarto(DataPoint[] data){
         graph.getViewport().setScrollable(true);
-//
-        graph.getViewport().setXAxisBoundsManual(true);
-        graph.getViewport().setMinX(-3000);
-        graph.getViewport().setMaxX(5000);
+        //get max valeur absolue de Xmin et Xmax
+        int valeur_max = getValeurMax(data);
+        int k = 500;
 
-        // set manual Y bounds
+        graph.getViewport().setXAxisBoundsManual(true);
+        graph.getViewport().setMinX(- valeur_max - k);
+        graph.getViewport().setMaxX(valeur_max + k);
         graph.getViewport().setYAxisBoundsManual(true);
-        graph.getViewport().setMinY(-5000);
-        graph.getViewport().setMaxY(3000);
+        graph.getViewport().setMinY(-valeur_max - k);
+        graph.getViewport().setMaxY(valeur_max + k);
 
         graph.setTitle("Robot Cartographieur");
 
@@ -406,9 +429,24 @@ public class MainActivity extends AppCompatActivity
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(data);
         return series;
     }
+
+    private int getIndiceAngle1(int[] tab_angle){
+        int indice_need = 0;
+        int k = 0;
+        for (int angle :tab_angle) {
+
+            if (angle < 5 ){
+                indice_need = k;
+            }
+            k++;
+        }
+        return indice_need;
+    }
+
     public void CreaCarto(int[][] angledirection){
 
-        int[][] CoordXY= PassageCartesien(angledirection);
+        int indice0 = getIndiceAngle1(angledirection[1]);
+        int[][] CoordXY = PassageCartesien(angledirection);
         int[] Xvalues = CoordXY[1];
         int[] Yvalues = CoordXY[0];
         DataPoint[] data = new DataPoint[Xvalues.length];
@@ -449,7 +487,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         LineGraphSeries<DataPoint> series = MajDonneeCarto(data);
-//        series.resetData(data);
+
         series.setOnDataPointTapListener(new OnDataPointTapListener() {
             @Override
             public void onTap(Series series_tab, DataPointInterface dataPoint) {
@@ -458,10 +496,22 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+        DataPoint[] Angle0 = new DataPoint[1];
+        Angle0[0]  =  data[indice0] ;
+        LineGraphSeries<DataPoint> serieAngle0 = MajDonneeCarto(Angle0);
+        serieAngle0.setColor(Color.RED);
         series.setDrawDataPoints(true);
         series.setDataPointsRadius(1);
         series.setThickness(2);
+        graph.removeAllSeries();
+        graph.addSeries(serieAngle0);
         graph.addSeries(series);
+//        if (series.equals(graph.getSeries())){
+//
+//        }else{
+//
+//        }
+
 
 
     }
@@ -688,6 +738,7 @@ public class MainActivity extends AppCompatActivity
                     Log.i("Debug", "MAJ Lidar");
                     String[] DataLidar;
                     DataLidar = LoadFile(fileL);
+                    Carto.performClick();
 
                 }
             }
