@@ -11,6 +11,9 @@
     <string name="perso4">Sevrain CHEA</string>
     <string name="perso5">Nicolas HENRY</string>
 
+    <string name="vitesse">Vitesse :</string>
+    <string name="batterie">Batterie :</string>
+    <string name="distance">Distance USA : </string>
 
 
 </resources>

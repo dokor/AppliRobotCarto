@@ -93,9 +93,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -108,11 +105,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-//        chartCarto = (LineChart) findViewById(R.id.chart);
-
         graph = (GraphView) findViewById(R.id.graph);
-
 
         //Création du joystick + Position X/Y + Boutons
         layout_joystick = (RelativeLayout) findViewById(R.id.layout_joystick);
@@ -133,8 +126,8 @@ public class MainActivity extends AppCompatActivity
         SwitchLidar.setOnClickListener(OnOffLidar);
         Carto.setOnClickListener(AffichageCarto);
 
-
-        Btn_TEST.setImageResource(R.drawable.ic_menu_slideshow);
+        Carto.setImageResource(R.drawable.ic_explore_white_36dp);
+        Btn_TEST.setImageResource(R.drawable.ic_info_outline_white_48dp);
         Connexion.setImageResource(R.drawable.ic_cloud_white_24dp);
 
         js = new JoyStickClass(getApplicationContext()
@@ -351,9 +344,10 @@ public class MainActivity extends AppCompatActivity
         public void onClick(View v) {
 
             String[] Data = LoadFile(file);
-            byte[] b = fromBinaryString(Data[42]);
-            
 
+            CardTextA.setText(getString(R.string.vitesse) + "\n"+"valeur");
+            CardTextB.setText(getString(R.string.batterie) + "\n"+"valeur");
+            CardTextC.setText(getString(R.string.distance) + "\n"+"valeur");
         }
     };
 
@@ -1295,11 +1289,6 @@ public class MainActivity extends AppCompatActivity
             isr.close();
         }
         catch (IOException e) {e.printStackTrace();}
-        if(file_a_ouvrir.equals(file)) {
-            CardTextA.setText("Vitesse :" + "\ntest");
-            CardTextB.setText("Batterie :" + "\ntest");
-            CardTextC.setText("Distance US Avant :" + "\ntest");
-        }
         return array;
     }
 }

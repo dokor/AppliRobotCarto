@@ -26,7 +26,7 @@
             xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:id="@+id/card_view"
             android:layout_gravity="center"
-            android:layout_width="300dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             card_view:cardUseCompatPadding="true"
             card_view:cardCornerRadius="4dp"
@@ -37,21 +37,21 @@
                 android:id="@+id/CardTextA"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Vitesse :"
+                android:text="@string/vitesse"
                 />
             <TextView
                 android:id="@+id/CardTextB"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="45dp"
-                android:text="Batterie :"
+                android:text="@string/batterie"
                 />
             <TextView
                 android:id="@+id/CardTextC"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="90dp"
-                android:text="Distance Ultrasons Avant  :"
+                android:text="@string/distance"
                 />
         </android.support.v7.widget.CardView>
     </LinearLayout>
@@ -95,7 +95,6 @@
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_dialog_info"
         android:id="@+id/Info"
         android:layout_gravity="right"/>
 
