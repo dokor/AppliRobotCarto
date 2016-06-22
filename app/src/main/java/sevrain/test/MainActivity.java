@@ -1,12 +1,7 @@
 package sevrain.test;
 
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -86,7 +81,7 @@ public class MainActivity extends AppCompatActivity
     public File file = new File(root + "/settingsDEV.csv");
     public File fileL = new File(root + "/DataLidar.csv");
     public File fileRG = new File(root + "/ReferencesReg.csv");
-    private int k_phare =0,lidar,count;
+    private int k_phare =0,lidar,count,chrono =500;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +145,7 @@ public class MainActivity extends AppCompatActivity
                             || arg1.getAction() == MotionEvent.ACTION_MOVE) {
                         Y = js.getY();
                         X = js.getX();
+                        CardTextA.setText(getString(R.string.vitesse) + "\n"+String.valueOf(-Y*2));
                         int direction = js.get8Direction();
                         if (direction == JoyStickClass.STICK_UP) {
                             if (lock[0] == 0 || lock[1] == 1) {
@@ -343,11 +339,34 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onClick(View v) {
 
-            String[] Data = LoadFile(file);
+            byte[] batterie = new byte[4];
+            byte[] distance_us = new byte[4];
+            byte[] vitesse = new byte[4];
 
-            CardTextA.setText(getString(R.string.vitesse) + "\n"+"valeur");
-            CardTextB.setText(getString(R.string.batterie) + "\n"+"valeur");
-            CardTextC.setText(getString(R.string.distance) + "\n"+"valeur");
+            byte[] b = GetReglage(32);
+            batterie[2] = b[1];
+            batterie[3] = b[0];
+
+            b = GetReglage(50);
+            distance_us[2] = b[1];
+            distance_us[3] = b[0];
+
+            vitesse = GetReglage(26);
+
+
+            ByteBuffer wrapped = ByteBuffer.wrap(batterie);
+            double BatterieLvl = Math.round((wrapped.getInt()-11000)*0.11);
+            if(BatterieLvl>100) BatterieLvl = 100;
+
+            wrapped = ByteBuffer.wrap(distance_us);
+            int Distance_USA = wrapped.getInt();
+
+            wrapped = ByteBuffer.wrap(vitesse);
+            float Vitesse = wrapped.getFloat();
+
+            CardTextA.setText(getString(R.string.vitesse) + "\n"+String.valueOf(Vitesse));
+            CardTextB.setText(getString(R.string.batterie) + "\n"+String.valueOf(BatterieLvl) + "%");
+            CardTextC.setText(getString(R.string.distance) + "\n"+String.valueOf(Distance_USA));
         }
     };
 
@@ -532,42 +551,19 @@ public class MainActivity extends AppCompatActivity
         public void onClick(View v) {
             if (TcpClient.mRun) {
                 if (k_phare==0){
-                    String[] test =  LoadFile(file);
-                    test[2] = "0000000100000000";
-                    test[5] = "0001100000000000";
-                    test[6] = "0010100100000000";
-                    test[7] = "0010000000000000";
-                    test[8] = "00000001000000000000000000000000";
-                    byte[] Tab_Envoi = new byte[24];
-                    int j=0;
-                    for (int i=0;i<9;i++){
-                        byte[] test1 = new byte[fromBinaryString(test[i]).length];
-                        test1 = fromBinaryString(test[i]);
-                        System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
-                        j = j+test1.length;
-                    }
-                    lidar=1;
-                    SendMessage(Tab_Envoi);
+                    //Lidar on
+                    SendMessage(ModifLidarOn_Off());
                     k_phare=1;
+                    lidar=1;
+                    chrono = 1000;
                 }
                 else{
-                    String[] test =  LoadFile(file);
-                    test[2] = "0000000100000000";
-                    test[5] = "0001100000000000";
-                    test[6] = "0010100100000000";
-                    test[7] = "0010010100000000";
-                    test[8] = "00000001000000000000000000000000";
-                    byte[] Tab_Envoi = new byte[24];
-                    int j=0;
-                    for (int i=0;i<9;i++){
-                        byte[] test1 = new byte[fromBinaryString(test[i]).length];
-                        test1 = fromBinaryString(test[i]);
-                        System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
-                        j = j+test1.length;
-                    }
+                    //Lidar off
+                    SendMessage(ModifLidarOn_Off());
                     lidar=0;
-                    SendMessage(Tab_Envoi);
                     k_phare=0;
+                    chrono = 500;
+
                 }
 
             }
@@ -632,6 +628,7 @@ public class MainActivity extends AppCompatActivity
                                 }
                                 else if (!TcpClient.mRun){
                                     killProcess();
+                                    cancel();
                                 }
                                 else{
                                     updateData(mTcpClient.bf);
@@ -647,7 +644,7 @@ public class MainActivity extends AppCompatActivity
                     handler.removeCallbacks(r);
                 }
             };
-            timerAsync.schedule(timerTaskAsync, 0, 500);
+            timerAsync.schedule(timerTaskAsync, 0, chrono);
 
         }
 
@@ -767,6 +764,12 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
+    private byte[] GetReglage(int IndexReg){
+        String[] s = LoadFile(file);
+        byte[] Data = fromBinaryString(s[IndexReg]);
+
+        return Data;
+    }
 
     private String ConvertInvertData (float Pos,int mode){
 
@@ -832,6 +835,33 @@ public class MainActivity extends AppCompatActivity
         }
         return Tab_Envoi;
     }
+
+    private byte[]ModifLidarOn_Off(){
+        String[] test =  LoadFile(file);
+        test[2] = "0000000100000000";
+        test[5] = "0001100000000000";
+        test[6] = "0010100100000000";
+        test[8] = "00000001000000000000000000000000";
+
+        switch (lidar){
+            case 0 :
+                test[7] = "0010000000000000";
+                break;
+
+            case 1 :
+                test[7] = "0010010100000000";
+        }
+        byte[] Tab_Envoi = new byte[24];
+        int j=0;
+        for (int i=0;i<9;i++){
+            byte[] test1 = new byte[fromBinaryString(test[i]).length];
+            test1 = fromBinaryString(test[i]);
+            System.arraycopy(test1,0,Tab_Envoi,j,test1.length);
+            j = j+test1.length;
+        }
+        return Tab_Envoi;
+    }
+
     private void SendMessage(byte[] tabBEnvoi){
         try {
             mTcpClient.sendMessage(tabBEnvoi);
@@ -1004,7 +1034,7 @@ public class MainActivity extends AppCompatActivity
         sI = new String[3];
         char[] Resultat_char = new char[16];
         int [] Qua = new int[400], Ang = new int[400],Dis = new int[400];
-        int m=0,sup=0;
+        int sup=0;
         boolean Ok = false;
 
         count=0;
@@ -1014,22 +1044,9 @@ public class MainActivity extends AppCompatActivity
                         s[k].getChars(0, 8, Resultat_char, 8);
                         s[k].getChars(8, 16, Resultat_char, 0);
                         StringBuilder sb = new StringBuilder();
-                        sb.append(Resultat_char[0]);
-                        sb.append(Resultat_char[1]);
-                        sb.append(Resultat_char[2]);
-                        sb.append(Resultat_char[3]);
-                        sb.append(Resultat_char[4]);
-                        sb.append(Resultat_char[5]);
-                        sb.append(Resultat_char[6]);
-                        sb.append(Resultat_char[7]);
-                        sb.append(Resultat_char[8]);
-                        sb.append(Resultat_char[9]);
-                        sb.append(Resultat_char[10]);
-                        sb.append(Resultat_char[11]);
-                        sb.append(Resultat_char[12]);
-                        sb.append(Resultat_char[13]);
-                        sb.append(Resultat_char[14]);
-                        sb.append(Resultat_char[15]);
+                        for(int m=0;m<16;m++) {
+                            sb.append(Resultat_char[m]);
+                        }
                         if(k==0){
                             Ok = false;
                             a= Integer.parseInt(sb.toString(), 2);
