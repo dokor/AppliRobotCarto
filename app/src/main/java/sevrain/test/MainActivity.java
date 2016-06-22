@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton Connexion, Btn_TEST, Carto;
     private Switch SwitchPhares, SwitchLidar;
     private JoyStickClass js;
+    private TextView CardTextA, CardTextB, CardTextC;
     public TcpClient mTcpClient;
     public File root = new File(Environment.getExternalStorageDirectory(), "SettingsRobot");
     public File file = new File(root + "/settingsDEV.csv");
@@ -116,6 +117,9 @@ public class MainActivity extends AppCompatActivity
         //Création du joystick + Position X/Y + Boutons
         layout_joystick = (RelativeLayout) findViewById(R.id.layout_joystick);
         layout_Carto = (RelativeLayout) findViewById(R.id.layout_Carto);
+        CardTextA = (TextView) findViewById(R.id.CardTextA);
+        CardTextB = (TextView) findViewById(R.id.CardTextB);
+        CardTextC = (TextView) findViewById(R.id.CardTextC);
 
         Btn_TEST = (FloatingActionButton) findViewById(R.id.Btn_TEST);
         Carto = (FloatingActionButton) findViewById(R.id.Info);
@@ -267,23 +271,25 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onRadioButtonClickedMode(View view) {
+        if (TcpClient.mRun) {
         // Is the button now checked?
-        boolean checked = ((RadioButton) view).isChecked();
+            boolean checked = ((RadioButton) view).isChecked();
 
-        // Check which radio button was clicked
-        switch(view.getId()) {
-            case R.id.rad_manuel:
-                if (checked)
-                    SendMessage(ModifParametrePrecis("00000010", 34));
+            // Check which radio button was clicked
+            switch (view.getId()) {
+                case R.id.rad_manuel:
+                    if (checked)
+                        SendMessage(ModifParametrePrecis("00000010", 34));
                     break;
-            case R.id.rad_assiste:
-                if (checked)
-                    SendMessage(ModifParametrePrecis("00000101", 34));
+                case R.id.rad_assiste:
+                    if (checked)
+                        SendMessage(ModifParametrePrecis("00000101", 34));
                     break;
-            case R.id.rad_auto:
-                if (checked)
-                    SendMessage(ModifParametrePrecis("00000100", 34));
+                case R.id.rad_auto:
+                    if (checked)
+                        SendMessage(ModifParametrePrecis("00000100", 34));
                     break;
+            }
         }
     }
 
@@ -1260,12 +1266,12 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public String[] LoadFile(File file)
+    public String[] LoadFile(File file_a_ouvrir)
     {
         FileInputStream fis = null;
         try
         {
-            fis = new FileInputStream(file);
+            fis = new FileInputStream(file_a_ouvrir);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -1289,6 +1295,11 @@ public class MainActivity extends AppCompatActivity
             isr.close();
         }
         catch (IOException e) {e.printStackTrace();}
+        if(file_a_ouvrir.equals(file)) {
+            CardTextA.setText("Vitesse :" + "\ntest");
+            CardTextB.setText("Batterie :" + "\ntest");
+            CardTextC.setText("Distance US Avant :" + "\ntest");
+        }
         return array;
     }
 }
